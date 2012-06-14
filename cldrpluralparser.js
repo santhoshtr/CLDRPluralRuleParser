@@ -1,14 +1,21 @@
 /*
  * Santhosh Thottingal <santhosh.thottingal@gmail.com>
+ *
  * Copyright 2012 GPLV3+
+ *
+ * cldrpluralparser.js
+ *
+ * A parser engine for CLDR plural rules.
  */
 function pluralruleparser(rule, number) {
 
-	// Indicates current position in rule as we parse through it.
+	// Indicates current position in the rule as we parse through it.
 	// Shared among all parsing functions below.
 	var pos = 0;
+
 	var whitespace = makeRegexParser(/^\s+/);
 	var digits = makeRegexParser(/^\d+/);
+
 	var _n_ = makeStringParser('n');
 	var _is_ = makeStringParser('is');
 	var _mod_ = makeStringParser('mod');
@@ -18,11 +25,12 @@ function pluralruleparser(rule, number) {
 	var _range_ = makeStringParser('..');
 	var _or_ = makeStringParser('or');
 	var _and_ = makeStringParser('and');
+
 	// Try parsers until one works, if none work return null
-	function choice(ps) {
+	function choice(parserSyntax) {
 		return function() {
-			for (var i = 0; i < ps.length; i++) {
-				var result = ps[i]();
+			for (var i = 0; i < parserSyntax.length; i++) {
+				var result = parserSyntax[i]();
 				if (result !== null) {
 					return result;
 				}
@@ -31,13 +39,14 @@ function pluralruleparser(rule, number) {
 		};
 	}
 
-	// try several ps in a row, all must succeed or return null
-	// this is the only eager one
-	function sequence(ps) {
+	// Try several parserSyntax-es in a row.
+	// All must succeed; otherwise, return null.
+	// This is the only eager one.
+	function sequence(parserSyntax) {
 		var originalPos = pos;
 		var result = [];
-		for (var i = 0; i < ps.length; i++) {
-			var res = ps[i]();
+		for (var i = 0; i < parserSyntax.length; i++) {
+			var res = parserSyntax[i]();
 			if (res === null) {
 				pos = originalPos;
 				return null;
@@ -47,8 +56,8 @@ function pluralruleparser(rule, number) {
 		return result;
 	}
 
-	// run the same parser over and over until it fails.
-	// must succeed a minimum of n times or return null
+	// Run the same parser over and over until it fails.
+	// Must succeed a minimum of n times; otherwise, return null.
 	function nOrMore(n, p) {
 		return function() {
 			var originalPos = pos;
@@ -68,7 +77,7 @@ function pluralruleparser(rule, number) {
 
 	// There is a general pattern -- parse a thing, if that worked, apply transform, otherwise return null.
 	// But using this as a combinator seems to cause problems when combined with nOrMore().
-	// May be some scoping issue
+	// May be some scoping issue.
 	function transform(p, fn) {
 		return function() {
 			var result = p();
@@ -76,7 +85,7 @@ function pluralruleparser(rule, number) {
 		};
 	}
 
-	// Helpers -- just make ps out of simpler JS builtin types
+	// Helpers -- just make parserSyntax out of simpler JS builtin types
 
 	function makeStringParser(s) {
 		var len = s.length;
@@ -103,7 +112,7 @@ function pluralruleparser(rule, number) {
 
 	function n() {
 		var result = _n_();
-		if (result == null) {
+		if (result === null) {
 			debug(" -- failed n ");
 			return result;
 		}
@@ -115,7 +124,7 @@ function pluralruleparser(rule, number) {
 
 	function mod() {
 		var result = sequence([n, whitespace, _mod_, whitespace, digits]);
-		if (result == null) {
+		if (result === null) {
 			debug(" -- failed mod ");
 			return null;
 		}
@@ -125,17 +134,19 @@ function pluralruleparser(rule, number) {
 
 	var not = function() {
 		var result = sequence([whitespace, _not_]);
-		if (result == null) {
+		if (result === null) {
 			debug(" -- failed not ");
 			return null;
-		} else
+		} else {
 			return result[1];
-	}
+		}
+	};
+
 	function is() {
 		var result = sequence([expression, whitespace, _is_, nOrMore(0, not), whitespace, digits]);
 		if (result !== null) {
 			debug(" -- passed is ");
-			if (result[3] == 'not') {
+			if (result[3] === 'not') {
 				return result[0] !== parseInt(result[5]);
 			} else {
 				return result[0] === parseInt(result[5]);
@@ -168,10 +179,10 @@ function pluralruleparser(rule, number) {
 			var range_list = result[5];
 			for (var i = 0; i < range_list.length; i++) {
 				if (range_list[i] === result[0]) {
-					return !(result[1] == 'not');
+					return (result[1] !== 'not');
 				}
 			}
-			return (result[1] == 'not');
+			return (result[1] === 'not');
 		}
 		debug(" -- failed _in ");
 		return null;
@@ -183,8 +194,9 @@ function pluralruleparser(rule, number) {
 			debug(" -- passed within ");
 			var range_list = result[4];
 			for (var i = 0; i < range_list.length; i++) {
-				if (range_list[i] === result[0])
+				if (range_list[i] === result[0]) {
 					return true;
+				}
 			}
 		}
 		debug(" -- failed within ");
