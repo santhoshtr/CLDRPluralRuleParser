@@ -1,6 +1,11 @@
 /*
  * Santhosh Thottingal <santhosh.thottingal@gmail.com>
+ *
  * Copyright 2012 GPLV3+
+ *
+ * cldrpluralparser.js
+ *
+ * A parser engine for CLDR plural rules.
  */
 function pluralruleparser(rule, number) {
 
@@ -107,7 +112,7 @@ function pluralruleparser(rule, number) {
 
 	function n() {
 		var result = _n_();
-		if (result == null) {
+		if (result === null) {
 			debug(" -- failed n ");
 			return result;
 		}
@@ -119,7 +124,7 @@ function pluralruleparser(rule, number) {
 
 	function mod() {
 		var result = sequence([n, whitespace, _mod_, whitespace, digits]);
-		if (result == null) {
+		if (result === null) {
 			debug(" -- failed mod ");
 			return null;
 		}
@@ -129,19 +134,19 @@ function pluralruleparser(rule, number) {
 
 	var not = function() {
 		var result = sequence([whitespace, _not_]);
-		if (result == null) {
+		if (result === null) {
 			debug(" -- failed not ");
 			return null;
 		} else {
 			return result[1];
 		}
-	}
+	};
 
 	function is() {
 		var result = sequence([expression, whitespace, _is_, nOrMore(0, not), whitespace, digits]);
 		if (result !== null) {
 			debug(" -- passed is ");
-			if (result[3] == 'not') {
+			if (result[3] === 'not') {
 				return result[0] !== parseInt(result[5]);
 			} else {
 				return result[0] === parseInt(result[5]);
@@ -174,10 +179,10 @@ function pluralruleparser(rule, number) {
 			var range_list = result[5];
 			for (var i = 0; i < range_list.length; i++) {
 				if (range_list[i] === result[0]) {
-					return !(result[1] == 'not');
+					return (result[1] !== 'not');
 				}
 			}
-			return (result[1] == 'not');
+			return (result[1] === 'not');
 		}
 		debug(" -- failed _in ");
 		return null;
@@ -189,8 +194,9 @@ function pluralruleparser(rule, number) {
 			debug(" -- passed within ");
 			var range_list = result[4];
 			for (var i = 0; i < range_list.length; i++) {
-				if (range_list[i] === result[0])
+				if (range_list[i] === result[0]) {
 					return true;
+				}
 			}
 		}
 		debug(" -- failed within ");
