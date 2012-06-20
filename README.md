@@ -5,8 +5,8 @@ Find out the plural form for a given number in a language
 
 ## Quick start
 
-```
-git clone  data file
+```bash
+git clone https://github.com/santhoshtr/CLDRPluralRuleParser.git
 ```
 
 ## Documentation
@@ -26,12 +26,6 @@ The plural rules are taken from the CLDR  data file (<a href="plural.xml">plural
 See a demonstration of the javascript parser at:
 http://thottingal.in/projects/js/plural/
 
-## Install
-
-```bash
-git clone https://github.com/santhoshtr/CLDRPluralRuleParser.git
-```
-
 ## Test
 
 Before you can run the tests, make sure the submodules are updated:
@@ -39,4 +33,4 @@ Before you can run the tests, make sure the submodules are updated:
 git submodule update --init
 ```
 
-Then open up `./test/index.html` in our browser.
+Then open up `./test/index.html` in your browser.
