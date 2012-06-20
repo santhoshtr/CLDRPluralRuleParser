@@ -1,68 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 	<head>
-		<meta charset="utf-8" />
+		<meta charset="utf-8"/>
 
-		<!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
-		Remove this if you use the .htaccess -->
-		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+		<!--
+			Always force latest IE rendering engine (even in intranet) & Chrome Frame
+			Remove this if you use the .htaccess
+		-->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
 
 		<title>CLDR Plural Rule Evaluator</title>
-		<meta name="description" content="" />
-		<meta name="author" content="Santhosh Thottingal" />
+		<!-- <link rel="shortcut icon" href="/favicon.ico"/> -->
+		<!-- <link rel="apple-touch-icon" href="/apple-touch-icon.png"/> -->
+		<!-- <meta name="description" content=""/> -->
+		<meta name="author" content="Santhosh Thottingal"/>
+		<meta name="viewport" content="width=device-width; initial-scale=1.0"/>
 
-		<meta name="viewport" content="width=device-width; initial-scale=1.0" />
-
-		<!-- Replace favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
-		<link rel="shortcut icon" href="/favicon.ico" />
-		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-		<link href="css/bootstrap.min.css" rel="stylesheet"/>
-		<script src="cldrpluralparser.js"></script>
-		<script src="js/jquery.js"></script>
-		<script src="js/bootstrap.min.js"></script>
-		<style>
-		</style>
-		<script type="text/javascript">
-			jQuery(function($) {
-				$('.result').hide();
-				xml = null;
-				$.ajax({
-					type : "GET",
-					url : "plurals.xml",
-					dataType : "xml",
-					success : function(xmldata) {
-						//	xmlDoc = $.parseXML( xmldata );
-						xml = xmldata;
-					}
-				});
-				$('button#calc-button').click(function(event) {
-					$('.result').html("");
-					pluralRules = xml.getElementsByTagName('pluralRules');
-					locale = $('#language').val();
-					for (var i = 0; i < pluralRules.length; i++) {
-						var locales_str = pluralRules[i].getAttribute('locales');
-						locales = locales_str.split(" ");
-						if ($.inArray(locale, locales) >= 0) {
-							plurals = pluralRules[i].getElementsByTagName('pluralRule');
-							for (var j = 0; j < plurals.length; j++) {
-								rule = plurals[j].textContent;
-								result = false;
-								result = pluralruleparser(rule + "", parseInt($('#input01').val()));
-								$resultdiv = $('<div>').addClass('alert ');
-								if (result) {
-									$('.result').append($resultdiv.addClass('alert-success').html( plurals[j].getAttribute("count") + " : " + rule));
-								} else {
-									$('.result').append($resultdiv.addClass('alert-error').html( plurals[j].getAttribute("count") + ": " + rule));
-								}
-							}
-							$('.result').show();
-						}
-					}
-					event.stopPropagation();
-					return false;
-				});
-			});
-		</script>
+		<!-- Source -->
+		<script src="../src/CLDRPluralRuleParser.js"></script>
+		<!-- Libs -->
+		<script src="../libs/jquery.js"></script>
+		<link href="../libs/bootstrap.min.css" rel="stylesheet"/>
+		<script src="../libs/bootstrap.min.js"></script>
+		<!-- Demo -->
+		<script src="resources/demo.js"></script>
 	</head>
 
 	<body>
@@ -74,18 +35,18 @@
 </header>
 			<form class="well form-horizontal">
 				<div class="control-group">
-					<label for="input01" class="control-label">n</label>
+					<label for="input-number" class="control-label">Number</label>
 					<div class="controls">
-						<input type="number" id="input01" class="input"  value=1 placeholder="Type a number here…"/>
+						<input type="number" id="input-number" class="input" value="1" placeholder="Type a number here..."/>
 						<p class="help-block">
 							Type a number here. The plural form of that number will be evaluated
 						</p>
 					</div>
 				</div>
 				<div class="control-group">
-					<label for="language" class="control-label">Language</label>
+					<label for="input-language" class="control-label">Language</label>
 					<div class="controls">
-						<select id="language" name="language">
+						<select id="input-language">
 							<option value="aa">aa - Qafár af</option>
 							<option value="ab">ab - Аҧсшәа</option>
 							<option value="ace">ace - Acèh</option>
@@ -112,7 +73,7 @@
 							<option value="bcc">bcc - بلوچی مکرانی</option>
 							<option value="bcl">bcl - Bikol Central</option>
 							<option value="be">be - беларуская</option>
-							<option value="be-tarask">be-tarask - ‪Беларуская (тарашкевіца)‬</option>
+							<option value="be-tarask">be-tarask - Беларуская (тарашкевіца)</option>
 							<option value="bg">bg - български</option>
 							<option value="bho">bho - भोजपुरी</option>
 							<option value="bi">bi - Bislama</option>
@@ -141,8 +102,8 @@
 							<option value="cps">cps - Capiceño</option>
 							<option value="cr">cr - Nēhiyawēwin / ᓀᐦᐃᔭᐍᐏᐣ</option>
 							<option value="crh">crh - Qırımtatarca</option>
-							<option value="crh-cyrl">crh-cyrl - ‪Къырымтатарджа (Кирилл)‬</option>
-							<option value="crh-latn">crh-latn - ‪Qırımtatarca (Latin)‬</option>
+							<option value="crh-cyrl">crh-cyrl - Къырымтатарджа (Кирилл)</option>
+							<option value="crh-latn">crh-latn - Qırımtatarca (Latin)</option>
 							<option value="cs">cs - česky</option>
 							<option value="csb">csb - Kaszëbsczi</option>
 							<option value="cu">cu - Словѣ́ньскъ / ⰔⰎⰑⰂⰡⰐⰠⰔⰍⰟ</option>
@@ -152,7 +113,7 @@
 							<option value="de">de - Deutsch</option>
 							<option value="de-at">de-at - Österreichisches Deutsch</option>
 							<option value="de-ch">de-ch - Schweizer Hochdeutsch</option>
-							<option value="de-formal">de-formal - ‪Deutsch (Sie-Form)‬</option>
+							<option value="de-formal">de-formal - Deutsch (Sie-Form)</option>
 							<option value="diq">diq - Zazaki</option>
 							<option value="dsb">dsb - Dolnoserbski</option>
 							<option value="dtp">dtp - Dusun Bundu-liwan</option>
@@ -184,8 +145,8 @@
 							<option value="ga">ga - Gaeilge</option>
 							<option value="gag">gag - Gagauz</option>
 							<option value="gan">gan - 贛語</option>
-							<option value="gan-hans">gan-hans - ‪赣语（简体）‬</option>
-							<option value="gan-hant">gan-hant - ‪贛語（繁體）‬</option>
+							<option value="gan-hans">gan-hans - 赣语（简体）</option>
+							<option value="gan-hant">gan-hant - 贛語（繁體）</option>
 							<option value="gd">gd - Gàidhlig</option>
 							<option value="gl">gl - galego</option>
 							<option value="glk">glk - گیلکی</option>
@@ -240,12 +201,12 @@
 							<option value="kiu">kiu - Kırmancki</option>
 							<option value="kj">kj - Kwanyama</option>
 							<option value="kk">kk - Қазақша</option>
-							<option value="kk-arab">kk-arab - ‫قازاقشا (تٴوتە)‬</option>
-							<option value="kk-cn">kk-cn - ‫قازاقشا (جۇنگو)‬</option>
-							<option value="kk-cyrl">kk-cyrl - ‪Қазақша (кирил)‬</option>
-							<option value="kk-kz">kk-kz - ‪Қазақша (Қазақстан)‬</option>
-							<option value="kk-latn">kk-latn - ‪Qazaqşa (latın)‬</option>
-							<option value="kk-tr">kk-tr - ‪Qazaqşa (Türkïya)‬</option>
+							<option value="kk-arab">kk-arab - قازاقشا (تٴوتە)</option>
+							<option value="kk-cn">kk-cn - قازاقشا (جۇنگو)</option>
+							<option value="kk-cyrl">kk-cyrl - Қазақша (кирил)</option>
+							<option value="kk-kz">kk-kz - Қазақша (Қазақстан)</option>
+							<option value="kk-latn">kk-latn - Qazaqşa (latın)</option>
+							<option value="kk-tr">kk-tr - Qazaqşa (Türkïya)</option>
 							<option value="kl">kl - kalaallisut</option>
 							<option value="km">km - ភាសាខ្មែរ</option>
 							<option value="kn">kn - ಕನ್ನಡ</option>
@@ -261,8 +222,8 @@
 							<option value="ks-deva">ks-deva - कॉशुर</option>
 							<option value="ksh">ksh - Ripoarisch</option>
 							<option value="ku">ku - Kurdî</option>
-							<option value="ku-arab">ku-arab - ‫كوردي (عەرەبی)‬</option>
-							<option value="ku-latn">ku-latn - ‪Kurdî (latînî)‬</option>
+							<option value="ku-arab">ku-arab - كوردي (عەرەبی)</option>
+							<option value="ku-latn">ku-latn - Kurdî (latînî)</option>
 							<option value="kv">kv - Коми</option>
 							<option value="kw">kw - kernowek</option>
 							<option value="ky">ky - Кыргызча</option>
@@ -311,7 +272,7 @@
 							<option value="nah">nah - Nāhuatl</option>
 							<option value="nan">nan - Bân-lâm-gú</option>
 							<option value="nap">nap - Nnapulitano</option>
-							<option value="nb">nb - ‪norsk (bokmål)‬</option>
+							<option value="nb">nb - norsk (bokmål)</option>
 							<option value="nds">nds - Plattdüütsch</option>
 							<option value="nds-nl">nds-nl - Nedersaksisch</option>
 							<option value="ne">ne - नेपाली</option>
@@ -319,8 +280,8 @@
 							<option value="ng">ng - Oshiwambo</option>
 							<option value="niu">niu - Niuē</option>
 							<option value="nl">nl - Nederlands</option>
-							<option value="nl-informal">nl-informal - ‪Nederlands (informeel)‬</option>
-							<option value="nn">nn - ‪norsk (nynorsk)‬</option>
+							<option value="nl-informal">nl-informal - Nederlands (informeel)</option>
+							<option value="nn">nn - norsk (nynorsk)</option>
 							<option value="nov">nov - Novial</option>
 							<option value="nrm">nrm - Nouormand</option>
 							<option value="nso">nso - Sesotho sa Leboa</option>
@@ -389,8 +350,8 @@
 							<option value="so">so - Soomaaliga</option>
 							<option value="sq">sq - shqip</option>
 							<option value="sr">sr - српски / srpski</option>
-							<option value="sr-ec">sr-ec - ‪српски (ћирилица)‬</option>
-							<option value="sr-el">sr-el - ‪srpski (latinica)‬</option>
+							<option value="sr-ec">sr-ec - српски (ћирилица)</option>
+							<option value="sr-el">sr-el - srpski (latinica)</option>
 							<option value="srn">srn - Sranantongo</option>
 							<option value="ss">ss - SiSwati</option>
 							<option value="st">st - Sesotho</option>
@@ -453,21 +414,21 @@
 							<option value="za">za - Vahcuengh</option>
 							<option value="zea">zea - Zeêuws</option>
 							<option value="zh">zh - 中文</option>
-							<option value="zh-cn">zh-cn - ‪中文（中国大陆）‬</option>
-							<option value="zh-hans">zh-hans - ‪中文（简体）‬</option>
-							<option value="zh-hant">zh-hant - ‪中文（繁體）‬</option>
-							<option value="zh-hk">zh-hk - ‪中文（香港）‬</option>
-							<option value="zh-mo">zh-mo - ‪中文（澳門）‬</option>
-							<option value="zh-my">zh-my - ‪中文（马来西亚）‬</option>
-							<option value="zh-sg">zh-sg - ‪中文（新加坡）‬</option>
-							<option value="zh-tw">zh-tw - ‪中文（台灣）‬</option>
+							<option value="zh-cn">zh-cn - 中文（中国大陆）</option>
+							<option value="zh-hans">zh-hans - 中文（简体）</option>
+							<option value="zh-hant">zh-hant - 中文（繁體）</option>
+							<option value="zh-hk">zh-hk - 中文（香港）</option>
+							<option value="zh-mo">zh-mo - 中文（澳門）</option>
+							<option value="zh-my">zh-my - 中文（马来西亚）</option>
+							<option value="zh-sg">zh-sg - 中文（新加坡）</option>
+							<option value="zh-tw">zh-tw - 中文（台灣）</option>
 							<option value="zu">zu - isiZulu</option>
 						</select></label>
 						<div class="form-actions">
-							<button class="btn btn-primary" id="calc-button">
+							<button class="btn btn-primary" id="button-calc" type="submit">
 								Calculate
 							</button>
-							<button class="btn">
+							<button class="btn" id="button-reset" type="reset">
 								Cancel
 							</button>
 						</div>
@@ -486,7 +447,7 @@
 
 			<footer>
 				<p>
-					&copy; Copyright  by Santhosh Thottingal ( santhosh dot thottingal at gmail dot com).
+					&copy; Copyright by Santhosh Thottingal ( santhosh dot thottingal at gmail dot com).
 				</p>
 			</footer>
 		</div>
