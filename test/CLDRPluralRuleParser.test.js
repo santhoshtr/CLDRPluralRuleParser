@@ -71,17 +71,3 @@ jQuery.each({
 		});
 	});
 });
-
-/*
-console.log(pluralRuleParser("n mod 4 is 3", 7));
-console.log(pluralRuleParser("n mod 4 is not 3", 7));
-console.log(pluralRuleParser("n mod 4 in 0..5", 7));
-console.log(pluralRuleParser("n mod 4 not in 0..5", 7));
-console.log(pluralRuleParser("n is 1 and n mod 1 is 0", "1"));
-console.log(pluralRuleParser("n is 3 or n mod 1 is 0", "1"));
-console.log(pluralRuleParser("n is 1 and n is 1 and n is not 1", "1"));
-console.log(pluralRuleParser("n is not 1 and n mod 10 in 0..1 or 1 mod n in 5..9 or n mod 100 in 12..14", 21));
-
-console.log(pluralRuleParser("n mod 100 not in 12..14", 4));
-console.log(pluralRuleParser("n mod 10 in 2..4 and n mod 100 not in 12..14", 4));
-*/

@@ -5,15 +5,34 @@
  * Copyright 2012 GPLV3+, Santhosh Thottingal
  *
  * @author Santhosh Thottingal <santhosh.thottingal@gmail.com>
+ * @author Timo Tijhof
+ * @author Amir Aharoni
  */
 
 /**
+ * Evaluates a plural rule in CLDR syntax for a number
  * @param rule
  * @param number
  * @return true|false|null
  */
 function pluralRuleParser(rule, number) {
+	/*
+	Syntax: see http://unicode.org/reports/tr35/#Language_Plural_Rules
+	-----------------------------------------------------------------
 
+	condition     = and_condition ('or' and_condition)*
+	and_condition = relation ('and' relation)*
+	relation      = is_relation | in_relation | within_relation | 'n' <EOL>
+	is_relation   = expr 'is' ('not')? value
+	in_relation   = expr ('not')? 'in' range_list
+	within_relation = expr ('not')? 'within' range_list
+	expr          = 'n' ('mod' value)?
+	range_list    = (range | value) (',' range_list)*
+	value         = digit+
+	digit         = 0|1|2|3|4|5|6|7|8|9
+	range         = value'..'value
+
+	*/
 	// Indicates current position in the rule as we parse through it.
 	// Shared among all parsing functions below.
 	var pos = 0;
@@ -28,11 +47,12 @@ function pluralRuleParser(rule, number) {
 	var _in_ = makeStringParser('in');
 	var _within_ = makeStringParser('within');
 	var _range_ = makeStringParser('..');
+	var _comma_ = makeStringParser(',');
 	var _or_ = makeStringParser('or');
 	var _and_ = makeStringParser('and');
 
 	function debug() {
-		/**/ console.log.apply(console, arguments);
+		/* console.log.apply(console, arguments);*/
 	}
 
 	debug('pluralRuleParser', rule, number);
@@ -83,16 +103,6 @@ function pluralRuleParser(rule, number) {
 				return null;
 			}
 			return result;
-		};
-	}
-
-	// There is a general pattern -- parse a thing, if that worked, apply transform, otherwise return null.
-	// But using this as a combinator seems to cause problems when combined with nOrMore().
-	// May be some scoping issue.
-	function transform(p, fn) {
-		return function () {
-			var result = p();
-			return result === null ? null : fn(result);
 		};
 	}
 
@@ -158,13 +168,35 @@ function pluralRuleParser(rule, number) {
 		var result = sequence([expression, whitespace, _is_, nOrMore(0, not), whitespace, digits]);
 		if (result !== null) {
 			debug(" -- passed is");
-			if (result[3] === 'not') {
+			if (result[3][0] === 'not') {
 				return result[0] !== parseInt(result[5], 10);
 			} else {
 				return result[0] === parseInt(result[5], 10);
 			}
 		}
 		debug(" -- failed is");
+		return null;
+	}
+
+	function rangeList() {
+		// range_list    = (range | value) (',' range_list)*
+		var result = sequence([choice([range, digits]), nOrMore(0, rangeTail)]);
+		var resultList = [];
+		if (result !== null) {
+			resultList = resultList.concat(result[0], result[1][0]);
+			return resultList;
+		}
+		debug(" -- failed rangeList");
+		return null;
+	}
+
+	function rangeTail() {
+		// ',' range_list
+		var result = sequence([_comma_, rangeList]);
+		if (result !== null) {
+			return result[1];
+		}
+		debug(" -- failed rangeTail");
 		return null;
 	}
 
@@ -185,35 +217,33 @@ function pluralRuleParser(rule, number) {
 	}
 
 	function _in() {
-		var result = sequence([expression, nOrMore(0, not), whitespace, _in_, whitespace, range]);
+		// in_relation   = expr ('not')? 'in' range_list
+		var result = sequence([expression, nOrMore(0, not), whitespace, _in_, whitespace, rangeList]);
 		if (result !== null) {
 			debug(" -- passed _in");
 			var range_list = result[5];
 			for (var i = 0; i < range_list.length; i++) {
-				if (range_list[i] === result[0]) {
-					return (result[1] !== 'not');
+				if (parseInt(range_list[i], 10) === result[0]) {
+					return (result[1][0] !== 'not');
 				}
 			}
-			return (result[1] === 'not');
+			return (result[1][0] === 'not');
 		}
-		debug(" -- failed _in");
+		debug(" -- failed _in ");
 		return null;
 	}
 
 	function within() {
-		var result = sequence([expression, whitespace, _within_, whitespace, range]);
+		var result = sequence([expression, whitespace, _within_, whitespace, rangeList]);
 		if (result !== null) {
-			debug(" -- passed within");
+			debug(" -- passed within ");
 			var range_list = result[4];
-			for (var i = 0; i < range_list.length; i++) {
-				if (range_list[i] === result[0]) {
-					return true;
-				}
-			}
+			return (parseInt( range_list[0],10 )<= result[0] && result[0] <= parseInt( range_list[1], 10));
 		}
-		debug(" -- failed within");
+		debug(" -- failed within ");
 		return null;
 	}
+
 
 	var relation = choice([is, _in, within]);
 
@@ -244,11 +274,6 @@ function pluralRuleParser(rule, number) {
 		return result;
 	}
 
-	// Everything above this point is supposed to be stateless/static, but
-	// I am deferring the work of turning it into prototypes & objects.
-	// It's quite fast enough
-	// ---
-	// finally let's do some actual work...
 
 	var result = start();
 
@@ -268,3 +293,4 @@ function pluralRuleParser(rule, number) {
 if (typeof module !== 'undefined' && module.exports) {
 	module.exports = pluralRuleParser;
 }
+
