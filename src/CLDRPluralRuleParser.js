@@ -4,6 +4,8 @@
  *
  * Copyright 2012 GPLV3+, Santhosh Thottingal
  *
+ * @version 0.1.0-alpha
+ * @source https://github.com/santhoshtr/CLDRPluralRuleParser
  * @author Santhosh Thottingal <santhosh.thottingal@gmail.com>
  * @author Timo Tijhof
  * @author Amir Aharoni
