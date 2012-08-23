@@ -18,7 +18,7 @@
 		$('#button-calc').click(function (e) {
 			showCalcuate(xmlDoc, {
 				locale: $('#input-language').val(),
-				number: parseInt($('#input-number').val(), 10)
+				number: $('#input-number').val()
 			});
 
 			e.preventDefault();

@@ -10,6 +10,10 @@ jQuery.each({
 		pass: 1,
 		fail: 10
 	},
+	'n is 1': {
+		pass: 1.0,
+		fail: [1.2, 1.9]
+	},
 	'n is 2': {
 		pass: 2
 	},
