@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="CLDR Plural Rule Parser : CLDR Plural Rule Parser" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>CLDR Plural Rule Parser</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/santhoshtr/CLDRPluralRuleParser">View on GitHub</a>
+
+          <h1 id="project_title">CLDR Plural Rule Parser</h1>
+          <h2 id="project_tagline">CLDR Plural Rule Parser</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/santhoshtr/CLDRPluralRuleParser/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/santhoshtr/CLDRPluralRuleParser/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>CLDR Plural Rule Evaluator</h1>
+
+<h2>Find out the plural form for a given number in a language</h2>
+
+<h2>Quick start</h2>
+
+<div class="highlight"><pre>git clone https://github.com/santhoshtr/CLDRPluralRuleParser.git
+</pre></div>
+
+<h2>Documentation</h2>
+
+<p>Unlike English, for many languages, the plural forms are just not 2 forms.
+If you look at the <a href="http://unicode.org/repos/cldr-tmp/trunk/diff/supplemental/language_plural_rules.html#pl">CLDR plural rules table</a>
+you can easily understand this. The rules are defined in a particular syntax
+(an eg: for Russian, the plural few is applied when the rule
+"<code>n mod 10 in 2..4 and n mod 100 not in 12..14;</code>" is passed).</p>
+
+<p>This tool is a demonstration of a <a href="cldrpluralparser.js">javascript parser</a>
+for the plural rules in that syntax.</p>
+
+<p>For a given number in a language, this tool tells which plural form it belongs.
+The plural rules are taken from the CLDR  data file (<a href="plural.xml">plural.xml</a>.</p>
+
+<p>See a demonstration of the javascript parser at:
+<a href="http://thottingal.in/projects/js/plural/">http://thottingal.in/projects/js/plural/</a></p>
+
+<h2>Test</h2>
+
+<p>Before you can run the tests, make sure the submodules are updated:</p>
+
+<pre><code>git submodule update --init
+</code></pre>
+
+<p>Then open up <code>./test/index.html</code> in your browser.</p>
+
+<h2>Versioning</h2>
+
+<p>For transparency and insight into the release cycle, and to upgrading easier,
+we use the Semantic Versioning guidelines as much as possible.</p>
+
+<p>Releases will be numbered with the following format:</p>
+
+<p><code>&lt;major&gt;.&lt;minor&gt;.&lt;patch&gt;</code></p>
+
+<p>And constructed with the following guidelines:</p>
+
+<ul>
+<li>Breaking backward compatibility bumps the major (and resets the minor and patch)</li>
+<li>New additions without breaking backward compatibility bumps the minor (and resets the patch)</li>
+<li>Bug fixes and misc changes bumps the patch</li>
+</ul><p>For more information on SemVer, please visit <a href="http://semver.org/">http://semver.org/</a>.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">CLDR Plural Rule Parser maintained by <a href="https://github.com/santhoshtr">santhoshtr</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
