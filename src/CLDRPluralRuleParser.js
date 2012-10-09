@@ -139,7 +139,7 @@ function pluralRuleParser(rule, number) {
 			debug(" -- failed n");
 			return result;
 		}
-		result = parseInt(number, 10);
+		result = parseFloat(number);
 		debug(" -- passed n ", result);
 		return result;
 	}
@@ -185,7 +185,10 @@ function pluralRuleParser(rule, number) {
 		var result = sequence([choice([range, digits]), nOrMore(0, rangeTail)]);
 		var resultList = [];
 		if (result !== null) {
-			resultList = resultList.concat(result[0], result[1][0]);
+			resultList = resultList.concat(result[0]);
+			if ( result[1][0] ) {
+				resultList = resultList.concat(result[1][0]);
+			}
 			return resultList;
 		}
 		debug(" -- failed rangeList");
@@ -237,11 +240,16 @@ function pluralRuleParser(rule, number) {
 	}
 
 	function within() {
-		var result = sequence([expression, whitespace, _within_, whitespace, rangeList]);
+		// within_relation = expr ('not')? 'within' range_list
+		var result = sequence([expression, nOrMore(0, not), whitespace, _within_, whitespace, rangeList]);
 		if (result !== null) {
-			debug(" -- passed within ");
-			var range_list = result[4];
-			return (parseInt( range_list[0],10 )<= result[0] && result[0] <= parseInt( range_list[1], 10));
+			debug(" -- passed within");
+			var range_list = result[5];
+			if ( ( result[0] >= parseInt(range_list[0]) ) &&
+				( result[0] < parseInt(range_list[range_list.length-1]) ) ) {
+				return (result[1][0] !== 'not');
+			}
+			return (result[1][0] === 'not');
 		}
 		debug(" -- failed within ");
 		return null;
@@ -272,15 +280,8 @@ function pluralRuleParser(rule, number) {
 
 	var condition = choice([and, or, relation]);
 
-	function isInt(n) {
-		return parseFloat(n) % 1 === 0;
-	}
-
 
 	function start() {
-		if (!isInt(number)) {
-			return false;
-		}
 		var result = condition();
 		return result;
 	}

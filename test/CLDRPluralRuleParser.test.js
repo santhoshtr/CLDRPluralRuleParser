@@ -47,6 +47,10 @@ jQuery.each({
 	'n mod 10 in 3..4,9 and n mod 100 not in 10..19,70..79,90..99': {
 		fail: [2, 5, 10, 11, 18, 19, 20, 70, 71, 78, 79, 80, 90, 98, 99, 100],
 		pass: [3, 4]
+	},
+	'n within 0..2 and n is not 2': {
+		fail: [2, 5, 100],
+		pass: [0, 0.5, 1, 1.2, 1.9]
 	}
 }, function (rule, expected) {
 	QUnit.test(rule, function (assert) {
