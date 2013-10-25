@@ -33,7 +33,24 @@ function pluralRuleParser(rule, number) {
 	value         = digit+
 	digit         = 0|1|2|3|4|5|6|7|8|9
 	range         = value'..'value
-
+	===================================
+	condition     = and_condition ('or' and_condition)*
+                ('@integer' samples)?
+                ('@decimal' samples)?
+	and_condition = relation ('and' relation)*
+	relation      = is_relation | in_relation | within_relation
+	is_relation   = expr 'is' ('not')? value
+	in_relation   = expr (('not')? 'in' | '=' | '!=') range_list
+	within_relation = expr ('not')? 'within' range_list
+	expr          = operand (('mod' | '%') value)?
+	operand       = 'n' | 'i' | 'f' | 't' | 'v' | 'w'
+	range_list    = (range | value) (',' range_list)*
+	value         = digit+
+	digit         = 0|1|2|3|4|5|6|7|8|9
+	range         = value'..'value
+	samples       = sampleRange (',' sampleRange)* (',' ('…'|'...'))?
+	sampleRange   = decimalValue '~' decimalValue
+	decimalValue  = value ('.' value)?
 	*/
 	// Indicates current position in the rule as we parse through it.
 	// Shared among all parsing functions below.
@@ -44,7 +61,9 @@ function pluralRuleParser(rule, number) {
 
 	var _n_ = makeStringParser('n');
 	var _is_ = makeStringParser('is');
+	var _equal_ = makeStringParser('=');
 	var _mod_ = makeStringParser('mod');
+	var _percent_ = makeStringParser('%');
 	var _not_ = makeStringParser('not');
 	var _in_ = makeStringParser('in');
 	var _within_ = makeStringParser('within');
@@ -54,7 +73,7 @@ function pluralRuleParser(rule, number) {
 	var _and_ = makeStringParser('and');
 
 	function debug() {
-		/* console.log.apply(console, arguments);*/
+		console.log.apply(console, arguments);
 	}
 
 	debug('pluralRuleParser', rule, number);
@@ -147,12 +166,12 @@ function pluralRuleParser(rule, number) {
 	var expression = choice([mod, n]);
 
 	function mod() {
-		var result = sequence([n, whitespace, _mod_, whitespace, digits]);
+		var result = sequence([n, whitespace, choice([_mod_,_percent_]), whitespace, digits]);
 		if (result === null) {
 			debug(" -- failed mod");
 			return null;
 		}
-		debug(" -- passed mod");
+		debug(" -- passed " + parseInt(result[0], 10) + " "+ result[2] + " "  + parseInt(result[4], 10) );
 		return parseInt(result[0], 10) % parseInt(result[4], 10);
 	}
 
@@ -224,7 +243,7 @@ function pluralRuleParser(rule, number) {
 
 	function _in() {
 		// in_relation   = expr ('not')? 'in' range_list
-		var result = sequence([expression, nOrMore(0, not), whitespace, _in_, whitespace, rangeList]);
+		var result = sequence([expression, nOrMore(0, not), whitespace, choice([_in_,_equal_]), whitespace, rangeList]);
 		if (result !== null) {
 			debug(" -- passed _in");
 			var range_list = result[5];
@@ -278,6 +297,10 @@ function pluralRuleParser(rule, number) {
 		return null;
 	}
 
+	function samples() {
+		return true;
+	}
+
 	var condition = choice([and, or, relation]);
 
 
@@ -295,7 +318,7 @@ function pluralRuleParser(rule, number) {
 	 * n.b. This is part of language infrastructure, so we do not throw an internationalizable message.
 	 */
 	if (result === null || pos !== rule.length) {
-		// throw new Error("Parse error at position " + pos.toString() + " in input: " + rule + " result is " + result);
+		//throw new Error("Parse error at position " + pos.toString() + " in input: " + rule + " result is " + result);
 	}
 
 	return result;
