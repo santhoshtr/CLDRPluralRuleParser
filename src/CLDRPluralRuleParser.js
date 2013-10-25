@@ -21,19 +21,6 @@ function pluralRuleParser(rule, number) {
 	/*
 	Syntax: see http://unicode.org/reports/tr35/#Language_Plural_Rules
 	-----------------------------------------------------------------
-
-	condition     = and_condition ('or' and_condition)*
-	and_condition = relation ('and' relation)*
-	relation      = is_relation | in_relation | within_relation | 'n' <EOL>
-	is_relation   = expr 'is' ('not')? value
-	in_relation   = expr ('not')? 'in' range_list
-	within_relation = expr ('not')? 'within' range_list
-	expr          = 'n' ('mod' value)?
-	range_list    = (range | value) (',' range_list)*
-	value         = digit+
-	digit         = 0|1|2|3|4|5|6|7|8|9
-	range         = value'..'value
-	===================================
 	condition     = and_condition ('or' and_condition)*
                 ('@integer' samples)?
                 ('@decimal' samples)?
@@ -58,7 +45,7 @@ function pluralRuleParser(rule, number) {
 
 	var whitespace = makeRegexParser(/^\s+/);
 	var digits = makeRegexParser(/^\d+/);
-
+	var decimal = makeRegexParser(/^\d+\.?\d*/);
 	var _n_ = makeStringParser('n');
 	var _is_ = makeStringParser('is');
 	var _equal_ = makeStringParser('=');
@@ -73,7 +60,7 @@ function pluralRuleParser(rule, number) {
 	var _and_ = makeStringParser('and');
 
 	function debug() {
-		console.log.apply(console, arguments);
+		//console.log.apply(console, arguments);
 	}
 
 	debug('pluralRuleParser', rule, number);
@@ -101,6 +88,7 @@ function pluralRuleParser(rule, number) {
 			var res = parserSyntax[i]();
 			if (res === null) {
 				pos = originalPos;
+				debug(" -- failed sequence item " + i + " at " + rule.substr(pos, rule.length) + " for " + parserSyntax[i].toString());
 				return null;
 			}
 			result.push(res);
@@ -136,6 +124,9 @@ function pluralRuleParser(rule, number) {
 			if (rule.substr(pos, len) === s) {
 				result = s;
 				pos += len;
+			}
+			if (!result){
+				debug(" -- failed regex for " +  s + " at " + rule.substr(pos, len));
 			}
 			return result;
 		};
@@ -297,12 +288,56 @@ function pluralRuleParser(rule, number) {
 		return null;
 	}
 
-	function samples() {
-		return true;
+	function sampleRangeTail() {
+		// ',' range_list
+		var result = sequence([_comma_, whitespace, samples]);
+		if (result !== null) {
+			return result[1];
+		}
+		debug(" -- failed sampleRangeTail");
+		return null;
 	}
 
-	var condition = choice([and, or, relation]);
+	var sampleRange = choice( [
+		makeRegexParser(/^\d+\.?\d*~?\d*/),
+		makeStringParser('...'),
+		makeStringParser('…')
+		]);
 
+	function samples() {
+		// samples       = sampleRange (',' sampleRange)* (',' ('…'|'...'))?
+		debug(" -- trying samples");
+		var result = sequence([sampleRange,
+			nOrMore(0, sampleRangeTail)
+		]);
+		if (result) {
+			debug(" -- passed samples");
+			return true;
+		}
+		debug(" -- failed samples");
+		return null;
+	}
+
+	function integerSamples() {
+		var result = sequence([makeStringParser('@integer'), whitespace, samples]);
+		return result && result[2];
+	}
+
+	function decimalSamples() {
+		var result = sequence([makeStringParser('@decimal'), whitespace, samples]);
+		return result && result[2];
+	}
+
+	function condition() {
+		var result = sequence( [choice([and, or, relation]),
+			whitespace, integerSamples,
+			whitespace, decimalSamples
+		]);
+		if ( result ) {
+			return result[0] && result[2] && result[4];
+		}
+		return false;
+	}
 
 	function start() {
 		var result = condition();
@@ -318,7 +353,7 @@ function pluralRuleParser(rule, number) {
 	 * n.b. This is part of language infrastructure, so we do not throw an internationalizable message.
 	 */
 	if (result === null || pos !== rule.length) {
-		//throw new Error("Parse error at position " + pos.toString() + " in input: " + rule + " result is " + result);
+		throw new Error("Parse error at position " + pos.toString() + " in input: " + rule + " result is " + result);
 	}
 
 	return result;
