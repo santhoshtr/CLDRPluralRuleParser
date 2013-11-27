@@ -43,10 +43,20 @@ function pluralRuleParser(rule, number) {
 	// Shared among all parsing functions below.
 	var pos = 0;
 	rule =  rule.substr(0, rule.indexOf("@")).trim();
+
+	if ( !rule.length ) {
+		return true;
+	}
+
 	var whitespace = makeRegexParser(/^\s+/);
 	var digits = makeRegexParser(/^\d+/);
 	var decimal = makeRegexParser(/^\d+\.?\d*/);
 	var _n_ = makeStringParser('n');
+	var _i_ = makeStringParser('i');
+	var _f_ = makeStringParser('f');
+	var _t_ = makeStringParser('t');
+	var _v_ = makeStringParser('v');
+	var _w_ = makeStringParser('w');
 	var _is_ = makeStringParser('is');
 	var _isnot_ = makeStringParser('is not');
 	var _isnot_sign_ = makeStringParser('!=');
@@ -90,7 +100,6 @@ function pluralRuleParser(rule, number) {
 			var res = parserSyntax[i]();
 			if (res === null) {
 				pos = originalPos;
-				debug(" -- failed sequence item " + i + " at " + rule.substr(pos, rule.length) + " for " + parserSyntax[i].toString());
 				return null;
 			}
 			result.push(res);
@@ -145,6 +154,17 @@ function pluralRuleParser(rule, number) {
 		};
 	}
 
+	function i() {
+		var result = _i_();
+		if (result === null) {
+			debug(" -- failed i");
+			return result;
+		}
+		result = parseInt(number);
+		debug(" -- passed i ", result);
+		return result;
+	}
+
 	function n() {
 		var result = _n_();
 		if (result === null) {
@@ -156,10 +176,45 @@ function pluralRuleParser(rule, number) {
 		return result;
 	}
 
-	var expression = choice([mod, n]);
+	function f() {
+		var result = _f_();
+		if (result === null) {
+			debug(" -- failed f");
+			return result;
+		}
+		result = number % 1;
+		debug(" -- passed f ", result);
+		return result;
+	}
+
+	function t() {
+		var result = _f_();
+		if (result === null) {
+			debug(" -- failed t");
+			return result;
+		}
+		result = parseInt( ((number % 1) +'' ).replace(/0$/, ""));
+		debug(" -- passed t ", result);
+		return result;
+	}
+
+	function v() {
+		var result = _v_();
+		if (result === null) {
+			debug(" -- failed v");
+			return result;
+		}
+		result = parseInt( number % 1 ) + ''.length;
+		debug(" -- passed v ", result);
+		return result;
+	}
+
+ 	var operand = choice([n,i,f,t,v/*w*/]);
+
+	var expression = choice([mod, operand]);
 
 	function mod() {
-		var result = sequence([n, whitespace, choice([_mod_,_percent_]), whitespace, digits]);
+		var result = sequence([operand, whitespace, choice([_mod_,_percent_]), whitespace, digits]);
 		if (result === null) {
 			debug(" -- failed mod");
 			return null;
@@ -199,11 +254,16 @@ function pluralRuleParser(rule, number) {
 	}
 
 	function not_in() {
-		var result = sequence([expression, whitespace, _isnot_sign_, whitespace, range]);
+		var result = sequence([expression, whitespace, _isnot_sign_, whitespace, rangeList]);
 		if (result !== null) {
 			debug(" -- passed not_in: " + result[0] + ' != '+  result[4] );
-			return result[0] < parseInt(result[4][0], 10)
-				|| result[0] > parseInt(result[4][result.length-1], 10) ;
+			var range_list = result[4];
+			for (var i = 0; i < range_list.length; i++) {
+				if (parseInt(range_list[i], 10) === result[0]) {
+					return false;
+				}
+			}
+			return true;
 		}
 		debug(" -- failed not_in");
 		return null;
@@ -335,8 +395,12 @@ function pluralRuleParser(rule, number) {
 	 * and returned a non-null.
 	 * n.b. This is part of language infrastructure, so we do not throw an internationalizable message.
 	 */
-	if (result === null || pos !== rule.length) {
-		throw new Error("Parse error at position " + pos.toString() + " in input: " + rule + " result is " + result);
+	if (result === null ) {
+		throw new Error("Parse error at position " + pos.toString() + " in input: " + rule );
+	}
+
+	if (pos !== rule.length) {
+		debug("Warning: Rule not parsed completely. Parser stopped at " + rule.substr( 0, pos ) );
 	}
 
 	return result;
