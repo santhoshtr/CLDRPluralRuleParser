@@ -42,7 +42,7 @@ function pluralRuleParser(rule, number) {
 	// Indicates current position in the rule as we parse through it.
 	// Shared among all parsing functions below.
 	var pos = 0;
-
+	rule =  rule.substr(0, rule.indexOf("@")).trim();
 	var whitespace = makeRegexParser(/^\s+/);
 	var digits = makeRegexParser(/^\d+/);
 	var decimal = makeRegexParser(/^\d+\.?\d*/);
@@ -198,6 +198,18 @@ function pluralRuleParser(rule, number) {
 		return null;
 	}
 
+	function not_in() {
+		var result = sequence([expression, whitespace, _isnot_sign_, whitespace, range]);
+		if (result !== null) {
+			debug(" -- passed not_in: " + result[0] + ' != '+  result[4] );
+			return result[0] < parseInt(result[4][0], 10)
+				|| result[0] > parseInt(result[4][result.length-1], 10) ;
+		}
+		debug(" -- failed not_in");
+		return null;
+	}
+
+
 	function rangeList() {
 		// range_list    = (range | value) (',' range_list)*
 		var result = sequence([choice([range, digits]), nOrMore(0, rangeTail)]);
@@ -274,7 +286,7 @@ function pluralRuleParser(rule, number) {
 	}
 
 
-	var relation = choice([is, isnot, _in, within]);
+	var relation = choice([is, not_in, isnot, _in, within]);
 
 	function and() {
 		var result = sequence([relation, whitespace, _and_, whitespace, condition]);
@@ -306,52 +318,15 @@ function pluralRuleParser(rule, number) {
 		return null;
 	}
 
-	var sampleRange = choice( [
-		makeRegexParser(/^\d+\.?\d*~?\d*/),
-		makeStringParser('...'),
-		makeStringParser('…')
-		]);
-
-	function samples() {
-		// samples       = sampleRange (',' sampleRange)* (',' ('…'|'...'))?
-		debug(" -- trying samples");
-		var result = sequence([sampleRange,
-			nOrMore(0, sampleRangeTail)
-		]);
-		if (result) {
-			debug(" -- passed samples");
-			return true;
-		}
-		debug(" -- failed samples");
-		return null;
-	}
-
-	function integerSamples() {
-		var result = sequence([makeStringParser('@integer'), whitespace, samples]);
-		return result && result[2];
-	}
-
-	function decimalSamples() {
-		var result = sequence([makeStringParser('@decimal'), whitespace, samples]);
-		return result && result[2];
-	}
-
 	function condition() {
-		var result = sequence( [choice([and, or, relation]),
-			whitespace, integerSamples,
-			whitespace, decimalSamples
-		]);
-		if ( result ) {
-			return result[0] && result[2] && result[4];
-		}
-		return false;
+		var result =  sequence([choice([and, or, relation])]);
+		return result && result[0];
 	}
 
 	function start() {
 		var result = condition();
 		return result;
 	}
-
 
 	var result = start();
 
