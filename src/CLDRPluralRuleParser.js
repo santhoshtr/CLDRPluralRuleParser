@@ -48,6 +48,8 @@ function pluralRuleParser(rule, number) {
 	var decimal = makeRegexParser(/^\d+\.?\d*/);
 	var _n_ = makeStringParser('n');
 	var _is_ = makeStringParser('is');
+	var _isnot_ = makeStringParser('is not');
+	var _isnot_sign_ = makeStringParser('!=');
 	var _equal_ = makeStringParser('=');
 	var _mod_ = makeStringParser('mod');
 	var _percent_ = makeStringParser('%');
@@ -60,7 +62,7 @@ function pluralRuleParser(rule, number) {
 	var _and_ = makeStringParser('and');
 
 	function debug() {
-		//console.log.apply(console, arguments);
+		console.log.apply(console, arguments);
 	}
 
 	debug('pluralRuleParser', rule, number);
@@ -177,16 +179,22 @@ function pluralRuleParser(rule, number) {
 	}
 
 	function is() {
-		var result = sequence([expression, whitespace, _is_, nOrMore(0, not), whitespace, digits]);
+		var result = sequence([expression, whitespace, _is_, whitespace, digits]);
 		if (result !== null) {
-			debug(" -- passed is");
-			if (result[3][0] === 'not') {
-				return result[0] !== parseInt(result[5], 10);
-			} else {
-				return result[0] === parseInt(result[5], 10);
-			}
+			debug(" -- passed is : " + result[0] + ' == '+ parseInt(result[4], 10) );
+			return result[0] === parseInt(result[4], 10);
 		}
 		debug(" -- failed is");
+		return null;
+	}
+
+	function isnot() {
+		var result = sequence([expression, whitespace, choice([ _isnot_, _isnot_sign_ ]), whitespace, digits]);
+		if (result !== null) {
+			debug(" -- passed isnot: " + result[0] + ' !== '+ parseInt(result[4], 10) );
+			return result[0] !== parseInt(result[4], 10);
+		}
+		debug(" -- failed isnot");
 		return null;
 	}
 
@@ -266,7 +274,7 @@ function pluralRuleParser(rule, number) {
 	}
 
 
-	var relation = choice([is, _in, within]);
+	var relation = choice([is, isnot, _in, within]);
 
 	function and() {
 		var result = sequence([relation, whitespace, _and_, whitespace, condition]);
