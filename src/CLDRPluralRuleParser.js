@@ -211,7 +211,7 @@ function pluralRuleParser(rule, number) {
 			debug(' -- failed t');
 			return result;
 		}
-		result = parseInt(((number % 1) + '').replace(/0$/, '')) || 0;
+		result = (number+'.').split('.')[1].replace(/0$/, '') || 0;
 		debug(' -- passed t ', result);
 		return result;
 	}
@@ -225,7 +225,7 @@ function pluralRuleParser(rule, number) {
 			debug(' -- failed v');
 			return result;
 		}
-		result = parseInt(number % 1) + ''.length;
+		result = (number+'.').split('.')[1].length || 0;
 		debug(' -- passed v ', result);
 		return result;
 	}
@@ -239,7 +239,7 @@ function pluralRuleParser(rule, number) {
 			debug(' -- failed w');
 			return result;
 		}
-		result = parseInt(((number % 1) + '').replace(/0$/, '')).length || 0;
+		result = (number+'.').split('.')[1].replace(/0$/, '').length || 0;
 		debug(' -- passed w ', result);
 		return result;
 	}
