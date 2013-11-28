@@ -1,5 +1,5 @@
 /*globals pluralRuleParser, jQuery, document */
-(function ($) {
+(function($) {
 	"use strict";
 
 	// Start AJAX right away
@@ -7,15 +7,15 @@
 		type: 'GET',
 		url: '../plurals.xml',
 		dataType: 'xml'
-	}).done(function (xmldata) {
+	}).done(function(xmldata) {
 		// When document is ready as well, do init.
-		$(document).ready(function () {
+		$(document).ready(function() {
 			init(xmldata);
 		});
 	});
 
 	function init(xmlDoc) {
-		$('#button-calc').click(function (e) {
+		$('#button-calc').click(function(e) {
 			showCalcuate(xmlDoc, {
 				locale: $('#input-language').val(),
 				number: $('#input-number').val()
@@ -23,7 +23,7 @@
 
 			e.preventDefault();
 		});
-		$('#button-reset').click(function (e) {
+		$('#button-reset').click(function(e) {
 			$('.result').hide().empty();
 			// Don't prevent default, type=reset will clear the form :)
 		});
@@ -42,21 +42,19 @@
 				plurals = pluralRules[i].getElementsByTagName('pluralRule');
 				for (j = 0; j < plurals.length; j++) {
 					rule = plurals[j].textContent;
-					result = pluralRuleParser(rule + '', options.number);
-					$resultdiv = $('<div>').addClass('alert');
-					if (result) {
-						$('.result').append(
-							$resultdiv.addClass('alert-success').html(
-								plurals[j].getAttribute('count') + ' : ' + rule
-							)
-						);
-					} else {
-						$('.result').append(
-							$resultdiv.addClass('alert-error').html(
-								plurals[j].getAttribute('count') + ': ' + rule
-							)
-						);
+					$resultdiv = $('<div>')
+						.addClass('alert alert-error')
+						.html(plurals[j].getAttribute('count') + ' : ' + rule);
+
+					if (!result) {
+						result = pluralRuleParser(rule + '', options.number);
+						if (result) {
+							$resultdiv.removeClass('alert-error').addClass('alert-success');
+						}
 					}
+
+					$('.result').append($resultdiv);
+
 				}
 				$('.result').show();
 			}

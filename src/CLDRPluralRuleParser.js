@@ -45,8 +45,8 @@ function pluralRuleParser(rule, number) {
 	rule = rule.substr(0, rule.indexOf('@')).trim();
 
 	if (!rule.length) {
-		// Invalid or empty rule.
-		return false;
+		// empty rule or 'other' rule.
+		return true;
 	}
 	// Indicates current position in the rule as we parse through it.
 	// Shared among all parsing functions below.
