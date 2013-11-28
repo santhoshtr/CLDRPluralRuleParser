@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+	<meta charset="utf-8" />
+	<title>CLDR Plural Rule Evaluator</title>
+	<meta name="author" content="Santhosh Thottingal" />
+	<!-- Libs -->
+	<script src="../libs/jquery.js"></script>
+	<!-- Demo -->
+	<script src="PluralXML2JSON.js"></script>
+</head>
+
+<body>
+	<pre/>
+	<script type="text/javascript">
+	$.ajax({
+		type: 'GET',
+		url: '../plurals.xml',
+		dataType: 'xml'
+	}).done(parse);
+
+	function parse(xmlDoc) {
+		var pluralRules, i, locales, plurals,
+			j, k, rule, result;
+
+		result = {
+			pluralRules: {}
+		};
+		pluralRules = xmlDoc.getElementsByTagName('pluralRules');
+		for (i = 0; i < pluralRules.length; i++) {
+			locales = pluralRules[i].getAttribute('locales').split(' ');
+			for (j = 0; j < locales.length; j++) {
+				result.pluralRules[locales[j]] = {};
+				plurals = pluralRules[i].getElementsByTagName('pluralRule');
+				for (k = 0; k < plurals.length; k++) {
+					rule = plurals[k].textContent;
+					result.pluralRules[locales[j]][plurals[k].getAttribute('count')] = rule;
+				}
+			}
+		}
+		$('pre').text(JSON.stringify(result, undefined, '\t'));
+	}
+	</script>
+
+</body>
+
+</html>
