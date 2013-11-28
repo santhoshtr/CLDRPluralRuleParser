@@ -58,18 +58,20 @@ jQuery.each({
 		pass: [1],
 		//fail: [2,33,44,55]
 	},
-	't = 0 and i % 10 = 1 and i % 100 != 11 or t != 0 @integer 1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, … @decimal 0.1~1.6, 10.1, 100.1, 1000.1, …':{
+	't = 0 and i % 10 = 1 and i % 100 != 11 or t != 0 @integer 1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, … @decimal 0.1~1.6, 10.1, 100.1, 1000.1, …': {
 		pass: [1]
+	},
+	'v = 0 and i % 10 = 2..4 and i % 100 != 12..14 or f % 10 = 2..4 and f % 100 != 12..14 @integer 2~4, 22~24, 32~34, 42~44, 52~54, 62, 102, 1002, … @decimal 0.2~0.4, 1.2~1.4, 2.2~2.4, 3.2~3.4, 4.2~4.4, 5.2, 10.2, 100.2, 1000.2, …': {
+		pass: [0.2/*, 0.4, 1.2, 1.4, 2.2, 2.4, 3.2, 3.4, 4.2, 4.4, 5.2, 10.2, 100.2, 1000.2*/],
+	//	fail: [.1, 1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 10.1, 100.1, 1000.1]
 	}
 }, function(rule, expected) {
 	QUnit.test(rule, function(assert) {
 		// Turn into arrays
 		var pass = expected.pass ?
-			jQuery.isArray(expected.pass) ? expected.pass : [expected.pass] :
-			[];
+			jQuery.isArray(expected.pass) ? expected.pass : [expected.pass] : [];
 		var fail = expected.fail ?
-			jQuery.isArray(expected.fail) ? expected.fail : [expected.fail] :
-			[];
+			jQuery.isArray(expected.fail) ? expected.fail : [expected.fail] : [];
 
 		jQuery.each(pass, function(i, number) {
 			assert.strictEqual(
