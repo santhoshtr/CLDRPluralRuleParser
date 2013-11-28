@@ -32,7 +32,7 @@ jQuery.each({
 		fail: [2, 11, 12]
 	},
 	' @integer 100~102, 200~202, 300~302, 400~402, 500~502, 600, 1000, 10000, 100000, 1000000, … @decimal 0.1~0.9, 1.1~1.7, 10.1, 100.0, 1000.0, 10000.0, 100000.0, 1000000.0, …': {
-		pass: [10, 11, 20, 21, 30, 110, 111, 120]
+		fail: [10, 11, 20, 21, 30, 110, 111, 120]
 	},
 	'i = 1 and v = 0 @integer 1': {
 		fail: [0, 2, 3],
@@ -99,7 +99,7 @@ $.ajax({
 		console.log(plurals.length);
 		for (var i = 0; i < plurals.length; i++) {
 			rule = plurals[i].textContent;
-			assert.notEqual(pluralRuleParser(rule, 1), null, rule);
+			assert.notEqual(pluralRuleParser(rule, i), null, rule);
 		}
 	});
 });

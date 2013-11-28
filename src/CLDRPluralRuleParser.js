@@ -2,7 +2,7 @@
  * cldrpluralparser.js
  * A parser engine for CLDR plural rules.
  *
- * Copyright 2012 GPLV3+, Santhosh Thottingal
+ * Copyright 2012-2-13 GPLV3+
  *
  * @version 0.1.0-alpha
  * @source https://github.com/santhoshtr/CLDRPluralRuleParser
@@ -15,7 +15,8 @@
  * Evaluates a plural rule in CLDR syntax for a number
  * @param rule
  * @param number
- * @return true|false|null
+ * @return true|false|null true if evaluation passed, false if evaluation failed.
+ * 		null if parsing failed.
  */
 function pluralRuleParser(rule, number) {
 	/*
@@ -39,37 +40,43 @@ function pluralRuleParser(rule, number) {
 	sampleRange   = decimalValue '~' decimalValue
 	decimalValue  = value ('.' value)?
 	*/
-	// Indicates current position in the rule as we parse through it.
-	// Shared among all parsing functions below.
-	var pos = 0;
+
+	// we dont evaluate the samples section of the rule. Ignore it.
 	rule = rule.substr(0, rule.indexOf('@')).trim();
 
 	if (!rule.length) {
-		return true;
+		// Invalid or empty rule.
+		return false;
 	}
-
-	var whitespace = makeRegexParser(/^\s+/);
-	var digits = makeRegexParser(/^\d+/);
-	var decimal = makeRegexParser(/^\d+\.?\d*/);
-	var _n_ = makeStringParser('n');
-	var _i_ = makeStringParser('i');
-	var _f_ = makeStringParser('f');
-	var _t_ = makeStringParser('t');
-	var _v_ = makeStringParser('v');
-	var _w_ = makeStringParser('w');
-	var _is_ = makeStringParser('is');
-	var _isnot_ = makeStringParser('is not');
-	var _isnot_sign_ = makeStringParser('!=');
-	var _equal_ = makeStringParser('=');
-	var _mod_ = makeStringParser('mod');
-	var _percent_ = makeStringParser('%');
-	var _not_ = makeStringParser('not');
-	var _in_ = makeStringParser('in');
-	var _within_ = makeStringParser('within');
-	var _range_ = makeStringParser('..');
-	var _comma_ = makeStringParser(',');
-	var _or_ = makeStringParser('or');
-	var _and_ = makeStringParser('and');
+	// Indicates current position in the rule as we parse through it.
+	// Shared among all parsing functions below.
+	var pos = 0,
+		operand,
+		expression,
+		relation,
+		result,
+		whitespace = makeRegexParser(/^\s+/),
+		digits = makeRegexParser(/^\d+/),
+		decimal = makeRegexParser(/^\d+\.?\d*/),
+		_n_ = makeStringParser('n'),
+		_i_ = makeStringParser('i'),
+		_f_ = makeStringParser('f'),
+		_t_ = makeStringParser('t'),
+		_v_ = makeStringParser('v'),
+		_w_ = makeStringParser('w'),
+		_is_ = makeStringParser('is'),
+		_isnot_ = makeStringParser('is not'),
+		_isnot_sign_ = makeStringParser('!='),
+		_equal_ = makeStringParser('='),
+		_mod_ = makeStringParser('mod'),
+		_percent_ = makeStringParser('%'),
+		_not_ = makeStringParser('not'),
+		_in_ = makeStringParser('in'),
+		_within_ = makeStringParser('within'),
+		_range_ = makeStringParser('..'),
+		_comma_ = makeStringParser(','),
+		_or_ = makeStringParser('or'),
+		_and_ = makeStringParser('and');
 
 	function debug() {
 		//console.log.apply(console, arguments);
@@ -209,9 +216,9 @@ function pluralRuleParser(rule, number) {
 		return result;
 	}
 
-	var operand = choice([n, i, f, t, v /*w*/ ]);
+	operand = choice([n, i, f, t, v /*w*/ ]);
 
-	var expression = choice([mod, operand]);
+	expression = choice([mod, operand]);
 
 	function mod() {
 		var result = sequence([operand, whitespace, choice([_mod_, _percent_]), whitespace, digits]);
@@ -228,9 +235,9 @@ function pluralRuleParser(rule, number) {
 		if (result === null) {
 			debug(' -- failed not');
 			return null;
-		} else {
-			return result[1];
 		}
+
+		return result[1];
 	}
 
 	function is() {
@@ -346,7 +353,7 @@ function pluralRuleParser(rule, number) {
 	}
 
 
-	var relation = choice([is, not_in, isnot, _in, within]);
+	relation = choice([is, not_in, isnot, _in, within]);
 
 	function and() {
 		var result = sequence([relation, whitespace, _and_, whitespace, condition]);
@@ -380,18 +387,17 @@ function pluralRuleParser(rule, number) {
 
 	function condition() {
 		var result = sequence([choice([and, or, relation])]);
-		if ( result ) {
+		if (result) {
 			return result[0];
 		}
 		return false;
 	}
 
 	function start() {
-		var result = condition();
-		return result;
+		return condition();
 	}
 
-	var result = start();
+	result = start();
 
 	/*
 	 * For success, the pos must have gotten to the end of the rule
