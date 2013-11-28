@@ -2,9 +2,9 @@
  * cldrpluralparser.js
  * A parser engine for CLDR plural rules.
  *
- * Copyright 2012-2-13 GPLV3+
+ * Copyright 2012-2013 GPLV3+
  *
- * @version 0.1.0-alpha
+ * @version 0.1.0
  * @source https://github.com/santhoshtr/CLDRPluralRuleParser
  * @author Santhosh Thottingal <santhosh.thottingal@gmail.com>
  * @author Timo Tijhof
@@ -41,7 +41,7 @@ function pluralRuleParser(rule, number) {
 	decimalValue  = value ('.' value)?
 	*/
 
-	// we dont evaluate the samples section of the rule. Ignore it.
+	// we don't evaluate the samples section of the rule. Ignore it.
 	rule = rule.substr(0, rule.indexOf('@')).trim();
 
 	if (!rule.length) {
@@ -144,9 +144,7 @@ function pluralRuleParser(rule, number) {
 				result = s;
 				pos += len;
 			}
-			if (!result) {
-				debug(' -- failed regex for ' + s + ' at ' + rule.substr(pos, len));
-			}
+
 			return result;
 		};
 	}
@@ -208,12 +206,12 @@ function pluralRuleParser(rule, number) {
 	 * visible fractional digits in n, without trailing zeros.
 	 */
 	function t() {
-		var result = _f_();
+		var result = _t_();
 		if (result === null) {
 			debug(' -- failed t');
 			return result;
 		}
-		result = parseInt(((number % 1) + '').replace(/0$/, ''));
+		result = parseInt(((number % 1) + '').replace(/0$/, '')) || 0;
 		debug(' -- passed t ', result);
 		return result;
 	}
@@ -241,7 +239,7 @@ function pluralRuleParser(rule, number) {
 			debug(' -- failed w');
 			return result;
 		}
-		result = parseInt(((number % 1) + '').replace(/0$/, '')).length;
+		result = parseInt(((number % 1) + '').replace(/0$/, '')).length || 0;
 		debug(' -- passed w ', result);
 		return result;
 	}
@@ -287,7 +285,7 @@ function pluralRuleParser(rule, number) {
 	function isnot() {
 		var result = sequence([expression, whitespace, choice([_isnot_, _isnot_sign_]), whitespace, value]);
 		if (result !== null) {
-			debug(' -- passed isnot: ' + result[0] + ' !== ' + parseInt(result[4], 10));
+			debug(' -- passed isnot: ' + result[0] + ' != ' + parseInt(result[4], 10));
 			return result[0] !== parseInt(result[4], 10);
 		}
 		debug(' -- failed isnot');
@@ -443,11 +441,11 @@ function pluralRuleParser(rule, number) {
 	 * n.b. This is part of language infrastructure, so we do not throw an internationalizable message.
 	 */
 	if (result === null) {
-		throw new Error('Parse error at position ' + pos.toString() + ' in input: ' + rule);
+		throw new Error('Parse error at position ' + pos.toString() + ' for rule: ' + rule);
 	}
 
 	if (pos !== rule.length) {
-		console.log('Warning: Rule not parsed completely. Parser stopped at ' + rule.substr(0, pos));
+		console.log('Warning: Rule not parsed completely. Parser stopped at ' + rule.substr(0, pos) + ' for rule: ' + rule);
 	}
 
 	return result;

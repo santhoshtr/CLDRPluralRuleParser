@@ -57,6 +57,9 @@ jQuery.each({
 	'i = 1 and v = 0 or i = 0 and t = 1 @integer 1 @decimal 0.1, 0.01, 0.10, 0.001, 0.010, 0.100, 0.0001, 0.0010, 0.0100, 0.1000': {
 		pass: [1],
 		//fail: [2,33,44,55]
+	},
+	't = 0 and i % 10 = 1 and i % 100 != 11 or t != 0 @integer 1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, … @decimal 0.1~1.6, 10.1, 100.1, 1000.1, …':{
+		pass: [1]
 	}
 }, function(rule, expected) {
 	QUnit.test(rule, function(assert) {
@@ -96,7 +99,6 @@ $.ajax({
 		var pluralRules, localeStr, locales, plurals,
 			j, rule;
 		plurals = xml.getElementsByTagName('pluralRule');
-		console.log(plurals.length);
 		for (var i = 0; i < plurals.length; i++) {
 			rule = plurals[i].textContent;
 			assert.notEqual(pluralRuleParser(rule, i), null, rule);
