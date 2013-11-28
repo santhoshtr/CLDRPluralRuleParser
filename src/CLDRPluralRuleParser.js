@@ -56,7 +56,8 @@ function pluralRuleParser(rule, number) {
 		relation,
 		result,
 		whitespace = makeRegexParser(/^\s+/),
-		digits = makeRegexParser(/^\d+/),
+		// value         = digit+
+		value = makeRegexParser(/^\d+/),
 		decimal = makeRegexParser(/^\d+\.?\d*/),
 		_n_ = makeStringParser('n'),
 		_i_ = makeStringParser('i'),
@@ -161,6 +162,9 @@ function pluralRuleParser(rule, number) {
 		};
 	}
 
+	/*
+	 * integer digits of n.
+	 */
 	function i() {
 		var result = _i_();
 		if (result === null) {
@@ -172,6 +176,9 @@ function pluralRuleParser(rule, number) {
 		return result;
 	}
 
+	/*
+	 * absolute value of the source number (integer and decimals).
+	 */
 	function n() {
 		var result = _n_();
 		if (result === null) {
@@ -183,6 +190,9 @@ function pluralRuleParser(rule, number) {
 		return result;
 	}
 
+	/*
+	 * visible fractional digits in n, with trailing zeros.
+	 */
 	function f() {
 		var result = _f_();
 		if (result === null) {
@@ -194,6 +204,9 @@ function pluralRuleParser(rule, number) {
 		return result;
 	}
 
+	/*
+	 * visible fractional digits in n, without trailing zeros.
+	 */
 	function t() {
 		var result = _f_();
 		if (result === null) {
@@ -205,6 +218,9 @@ function pluralRuleParser(rule, number) {
 		return result;
 	}
 
+	/*
+	 * number of visible fraction digits in n, with trailing zeros.
+	 */
 	function v() {
 		var result = _v_();
 		if (result === null) {
@@ -216,12 +232,28 @@ function pluralRuleParser(rule, number) {
 		return result;
 	}
 
-	operand = choice([n, i, f, t, v /*w*/ ]);
+	/*
+	 * number of visible fraction digits in n, without trailing zeros.
+	 */
+	function w() {
+		var result = _v_();
+		if (result === null) {
+			debug(' -- failed w');
+			return result;
+		}
+		result = parseInt(((number % 1) + '').replace(/0$/, '')).length;
+		debug(' -- passed w ', result);
+		return result;
+	}
 
+	// operand       = 'n' | 'i' | 'f' | 't' | 'v' | 'w'
+	operand = choice([n, i, f, t, v, w]);
+
+	// expr          = operand (('mod' | '%') value)?
 	expression = choice([mod, operand]);
 
 	function mod() {
-		var result = sequence([operand, whitespace, choice([_mod_, _percent_]), whitespace, digits]);
+		var result = sequence([operand, whitespace, choice([_mod_, _percent_]), whitespace, value]);
 		if (result === null) {
 			debug(' -- failed mod');
 			return null;
@@ -240,8 +272,9 @@ function pluralRuleParser(rule, number) {
 		return result[1];
 	}
 
+	// is_relation   = expr 'is' ('not')? value
 	function is() {
-		var result = sequence([expression, whitespace, _is_, whitespace, digits]);
+		var result = sequence([expression, whitespace, _is_, whitespace, value]);
 		if (result !== null) {
 			debug(' -- passed is : ' + result[0] + ' == ' + parseInt(result[4], 10));
 			return result[0] === parseInt(result[4], 10);
@@ -250,8 +283,9 @@ function pluralRuleParser(rule, number) {
 		return null;
 	}
 
+	// is_relation   = expr 'is' ('not')? value
 	function isnot() {
-		var result = sequence([expression, whitespace, choice([_isnot_, _isnot_sign_]), whitespace, digits]);
+		var result = sequence([expression, whitespace, choice([_isnot_, _isnot_sign_]), whitespace, value]);
 		if (result !== null) {
 			debug(' -- passed isnot: ' + result[0] + ' !== ' + parseInt(result[4], 10));
 			return result[0] !== parseInt(result[4], 10);
@@ -276,10 +310,9 @@ function pluralRuleParser(rule, number) {
 		return null;
 	}
 
-
+	// range_list    = (range | value) (',' range_list)*
 	function rangeList() {
-		// range_list    = (range | value) (',' range_list)*
-		var result = sequence([choice([range, digits]), nOrMore(0, rangeTail)]);
+		var result = sequence([choice([range, value]), nOrMore(0, rangeTail)]);
 		var resultList = [];
 		if (result !== null) {
 			resultList = resultList.concat(result[0]);
@@ -302,9 +335,10 @@ function pluralRuleParser(rule, number) {
 		return null;
 	}
 
+	// range         = value'..'value
 	function range() {
 		var i;
-		var result = sequence([digits, _range_, digits]);
+		var result = sequence([value, _range_, value]);
 		if (result !== null) {
 			debug(' -- passed range');
 			var array = [];
@@ -336,6 +370,10 @@ function pluralRuleParser(rule, number) {
 		return null;
 	}
 
+	/*
+	 * The difference between in and within is that in only includes integers in the specified range,
+	 * while within includes all values.
+	 */
 	function within() {
 		// within_relation = expr ('not')? 'within' range_list
 		var result = sequence([expression, nOrMore(0, not), whitespace, _within_, whitespace, rangeList]);
@@ -352,7 +390,7 @@ function pluralRuleParser(rule, number) {
 		return null;
 	}
 
-
+	// relation      = is_relation | in_relation | within_relation
 	relation = choice([is, not_in, isnot, _in, within]);
 
 	function and() {
