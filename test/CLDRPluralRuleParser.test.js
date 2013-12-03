@@ -35,8 +35,8 @@ jQuery.each({
 		pass: [10, 11, 20, 21, 30, 110, 111, 120, 0.1, 0.9, 1.1, 1.7, 10.1, 100.0, 1000.0, 10000.0]
 	},
 	'i = 1 and v = 0 @integer 1': {
-		fail: [0, 1.3, 2, 3],
-		pass: [1]
+		pass: [1],
+		fail: [1.3]
 	},
 	'v = 0 and n != 0..10 and n % 10 = 0 @integer 20, 30, 40, 50, 60, 70, 80, 90, 100, 1000, 10000, 100000, 1000000, …': {
 		pass: [20, 30, 40, 50, 60, 70, 80, 90, 100],
@@ -98,12 +98,37 @@ $.ajax({
 	dataType: 'xml'
 }).done(function(xml) {
 	QUnit.test('Parsing test', function(assert) {
-		var pluralRules, localeStr, locales, plurals,
-			j, rule;
+		var pluralRules, localeStr, locales, plurals, number,
+			j, rule, integerSamples, decimalSamples;
 		plurals = xml.getElementsByTagName('pluralRule');
 		for (var i = 0; i < plurals.length; i++) {
+			integerSamples = decimalSamples = [];
 			rule = plurals[i].textContent;
+			// Try whether we can parse the rule
 			assert.notEqual(pluralRuleParser(rule, i), null, rule);
+			// Get sample numbers from the rule.
+			if (rule.split('@')[1].indexOf('integer') == 0) {
+				integerSamples = rule.split('@')[1].replace('integer', '').split(',');
+			}
+			if (rule.split('@')[2]) {
+				decimalSamples = rule.split('@')[2].replace('decimal', '').split(',');
+			}
+			// Test all integers
+			for (var k = 0; k < integerSamples.length; k++) {
+				number = integerSamples[k].trim();
+				if (!number) continue;
+				number = parseInt(number.split('~')[0]);
+				if (!number || number === NaN) continue;
+				assert.equal(pluralRuleParser(rule, number), true, '[' + number + ']' + rule);
+			}
+			// Test all decimals
+			for (var k = 0; k < integerSamples.length; k++) {
+				number = integerSamples[k].trim();
+				if (!number) continue;
+				number = parseFloat(number.split('~')[0]);
+				if (!number || number === NaN) continue;
+				assert.equal(pluralRuleParser(rule, number), true, '[' + number + ']' + rule);
+			}
 		}
 	});
 });

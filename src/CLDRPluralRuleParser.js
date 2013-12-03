@@ -81,7 +81,7 @@ function pluralRuleParser(rule, number) {
 		_and_ = makeStringParser('and');
 
 	function debug() {
-		console.log.apply(console, arguments);
+		// console.log.apply(console, arguments);
 	}
 
 	debug('pluralRuleParser', rule, number);
@@ -139,7 +139,6 @@ function pluralRuleParser(rule, number) {
 	}
 
 	// Helpers -- just make parserSyntax out of simpler JS builtin types
-
 	function makeStringParser(s) {
 		var len = s.length;
 		return function() {
@@ -167,11 +166,10 @@ function pluralRuleParser(rule, number) {
 	/*
 	 * integer digits of n.
 	 */
-
 	function i() {
 		var result = _i_();
 		if (result === null) {
-			debug(' -- failed i');
+			debug(' -- failed i', parseInt(number));
 			return result;
 		}
 		result = parseInt(number);
@@ -182,7 +180,6 @@ function pluralRuleParser(rule, number) {
 	/*
 	 * absolute value of the source number (integer and decimals).
 	 */
-
 	function n() {
 		var result = _n_();
 		if (result === null) {
@@ -197,7 +194,6 @@ function pluralRuleParser(rule, number) {
 	/*
 	 * visible fractional digits in n, with trailing zeros.
 	 */
-
 	function f() {
 		var result = _f_();
 		if (result === null) {
@@ -212,7 +208,6 @@ function pluralRuleParser(rule, number) {
 	/*
 	 * visible fractional digits in n, without trailing zeros.
 	 */
-
 	function t() {
 		var result = _t_();
 		if (result === null) {
@@ -227,7 +222,6 @@ function pluralRuleParser(rule, number) {
 	/*
 	 * number of visible fraction digits in n, with trailing zeros.
 	 */
-
 	function v() {
 		var result = _v_();
 		if (result === null) {
@@ -242,7 +236,6 @@ function pluralRuleParser(rule, number) {
 	/*
 	 * number of visible fraction digits in n, without trailing zeros.
 	 */
-
 	function w() {
 		var result = _v_();
 		if (result === null) {
@@ -281,9 +274,8 @@ function pluralRuleParser(rule, number) {
 	}
 
 	// is_relation   = expr 'is' ('not')? value
-
 	function is() {
-		var result = sequence([expression, whitespace, _is_, whitespace, value]);
+		var result = sequence([expression, whitespace, choice([_is_]), whitespace, value]);
 		if (result !== null) {
 			debug(' -- passed is : ' + result[0] + ' == ' + parseInt(result[4], 10));
 			return result[0] === parseInt(result[4], 10);
@@ -293,7 +285,6 @@ function pluralRuleParser(rule, number) {
 	}
 
 	// is_relation   = expr 'is' ('not')? value
-
 	function isnot() {
 		var result = sequence([expression, whitespace, choice([_isnot_, _isnot_sign_]), whitespace, value]);
 		if (result !== null) {
@@ -310,7 +301,7 @@ function pluralRuleParser(rule, number) {
 			debug(' -- passed not_in: ' + result[0] + ' != ' + result[4]);
 			var range_list = result[4];
 			for (var i = 0; i < range_list.length; i++) {
-				if (parseInt(range_list[i], 10) === result[0]) {
+				if (parseInt(range_list[i], 10) === parseInt(result[0])) {
 					return false;
 				}
 			}
@@ -321,7 +312,6 @@ function pluralRuleParser(rule, number) {
 	}
 
 	// range_list    = (range | value) (',' range_list)*
-
 	function rangeList() {
 		var result = sequence([choice([range, value]), nOrMore(0, rangeTail)]);
 		var resultList = [];
@@ -369,10 +359,10 @@ function pluralRuleParser(rule, number) {
 		// in_relation   = expr ('not')? 'in' range_list
 		var result = sequence([expression, nOrMore(0, not), whitespace, choice([_in_, _equal_]), whitespace, rangeList]);
 		if (result !== null) {
-			debug(' -- passed _in');
+			debug(' -- passed _in:' + result);
 			var range_list = result[5];
 			for (var i = 0; i < range_list.length; i++) {
-				if (parseInt(range_list[i], 10) === result[0]) {
+				if (parseInt(range_list[i], 10) === parseInt(result[0])) {
 					return (result[1][0] !== 'not');
 				}
 			}
@@ -408,50 +398,59 @@ function pluralRuleParser(rule, number) {
 
 	// and_condition = relation ('and' relation)*
 	function and() {
-		var result = sequence([relation, whitespace, _and_, whitespace, condition]);
+		var result = sequence([relation, nOrMore(0, andTail)]);
 		if (result) {
-			debug(' -- passed and');
-			return result[0] && result[4];
+			if (!result[0]) return false;
+			for (var i = 0; i < result[1].length; i++) {
+				if (!result[1][i]) {
+					return false;
+				}
+			}
+			return true;
 		}
 		debug(' -- failed and');
 		return null;
 	}
 
-	function or() {
-		var result = sequence([relation, whitespace, _or_, whitespace, condition]);
-		if (result) {
-			debug(' -- passed or');
-			return result[0] || result[4];
-		}
-		debug(' -- failed or');
-		return null;
-	}
-
-	function sampleRangeTail() {
-		// ',' range_list
-		var result = sequence([_comma_, whitespace, samples]);
+	// ('and' relation)*
+	function andTail() {
+		var result = sequence([whitespace, _and_, whitespace, relation]);
 		if (result !== null) {
-			return result[1];
+			debug(' -- passed andTail' + result);
+			return result[3];
 		}
-		debug(' -- failed sampleRangeTail');
+		debug(' -- failed andTail');
 		return null;
+
+	}
+	//  ('or' and_condition)*
+	function orTail() {
+		var result = sequence([whitespace, _or_, whitespace, and]);
+		if (result !== null) {
+			debug(' -- passed orTail: ' + result[3]);
+			return result[3];
+		}
+		debug(' -- failed orTail');
+		return null;
+
 	}
 
- 	// condition     = and_condition ('or' and_condition)*
+	// condition     = and_condition ('or' and_condition)*
 	function condition() {
-		var result = sequence([choice([and, or, relation])]);
+		var result = sequence([and, nOrMore(0, orTail)]);
 		if (result) {
+			for (var i = 0; i < result[1].length; i++) {
+				if (result[1][i]) {
+					return true;
+				}
+			}
 			return result[0];
+
 		}
 		return false;
 	}
 
-	function start() {
-		return condition();
-	}
-
-	result = start();
-
+	result = condition();
 	/*
 	 * For success, the pos must have gotten to the end of the rule
 	 * and returned a non-null.
@@ -462,7 +461,7 @@ function pluralRuleParser(rule, number) {
 	}
 
 	if (pos !== rule.length) {
-		console.log('Warning: Rule not parsed completely. Parser stopped at ' + rule.substr(0, pos) + ' for rule: ' + rule);
+		debug('Warning: Rule not parsed completely. Parser stopped at ' + rule.substr(0, pos) + ' for rule: ' + rule);
 	}
 
 	return result;
