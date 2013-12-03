@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
+
 <head>
 	<meta charset="utf-8" />
 	<title>CLDR Plural Rule Evaluator</title>
 	<meta name="author" content="Santhosh Thottingal" />
 	<!-- Libs -->
 	<script src="../libs/jquery.js"></script>
-	<!-- Demo -->
-	<script src="PluralXML2JSON.js"></script>
 </head>
 
 <body>
@@ -32,9 +31,18 @@
 			for (j = 0; j < locales.length; j++) {
 				result.pluralRules[locales[j]] = {};
 				plurals = pluralRules[i].getElementsByTagName('pluralRule');
-				for (k = 0; k < plurals.length; k++) {
+				if (plurals.length === 1) {
+					// they are just the  'other' rules
+					result.pluralRules[locales[j]] = undefined;
+				}
+				for (k = 0; k < plurals.length - 1; k++) {
 					rule = plurals[k].textContent;
+					rule = rule.split('@')[0].trim();
 					result.pluralRules[locales[j]][plurals[k].getAttribute('count')] = rule;
+				}
+				if (rule === 'n = 1' || rule === 'i = 1 and v = 0') {
+					// default rules
+					result.pluralRules[locales[j]] = undefined;
 				}
 			}
 		}
