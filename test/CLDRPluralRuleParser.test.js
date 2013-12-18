@@ -94,7 +94,7 @@ jQuery.each({
 // Make sure we can parse all plural rules with out errors
 $.ajax({
 	type: 'GET',
-	url: '../plurals.xml',
+	url: '../data/plurals.xml',
 	dataType: 'xml'
 }).done(function(xml) {
 	QUnit.test('Parsing test', function(assert) {

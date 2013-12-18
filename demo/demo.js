@@ -2,62 +2,50 @@
 (function($) {
 	"use strict";
 
-	// Start AJAX right away
-	$.ajax({
-		type: 'GET',
-		url: '../plurals.xml',
-		dataType: 'xml'
-	}).done(function(xmldata) {
-		// When document is ready as well, do init.
-		$(document).ready(function() {
-			init(xmldata);
-		});
-	});
+	// CLDR's json.zip has this file in supplemental folder.
+	$.getJSON('../data/plurals.json', init);
 
-	function init(xmlDoc) {
-		$('#button-calc').click(function(e) {
-			showCalcuate(xmlDoc, {
-				locale: $('#input-language').val(),
-				number: $('#input-number').val()
-			});
+	var pluraldata = {};
 
-			e.preventDefault();
-		});
-		$('#button-reset').click(function(e) {
-			$('.result').hide().empty();
-			// Don't prevent default, type=reset will clear the form :)
+	function init(plurals) {
+		pluraldata = plurals;
+		$('#input-language, #input-number').on('change', changeHandler);
+		changeHandler();
+	}
+
+	function changeHandler() {
+		calculate(pluraldata, {
+			locale: $('#input-language').val(),
+			number: $('#input-number').val()
 		});
 	}
 
-	function showCalcuate(xml, options) {
-		var pluralRules, i, localeStr, locales, plurals,
-			j, rule, result, $resultdiv;
+	function calculate(pluraldata, options) {
+		var pluralRules, rule, result, $resultdiv;
 
-		$('.result').hide().empty();
-		pluralRules = xml.getElementsByTagName('pluralRules');
-		for (i = 0; i < pluralRules.length; i++) {
-			localeStr = pluralRules[i].getAttribute('locales');
-			locales = localeStr.split(' ');
-			if ($.inArray(options.locale, locales) !== -1) {
-				plurals = pluralRules[i].getElementsByTagName('pluralRule');
-				for (j = 0; j < plurals.length; j++) {
-					rule = plurals[j].textContent;
-					$resultdiv = $('<div>')
-						.addClass('alert alert-error')
-						.html(plurals[j].getAttribute('count') + ' : ' + rule);
+		$('.result').empty();
+		pluralRules = pluraldata.supplemental['plurals-type-cardinal'][options.locale];
+		if (!pluralRules) {
+			$('.result').append($('<div>')
+				.addClass('alert alert-error')
+				.text('No plural rules found')
+			);
+		}
+		for (var ruleName in pluralRules) {
+			rule = pluralRules[ruleName];
+			$resultdiv = $('<div>')
+				.addClass('alert alert-error')
+				.html(ruleName.split('-').pop() + ': ' + rule);
 
-					if (!result) {
-						result = pluralRuleParser(rule + '', options.number);
-						if (result) {
-							$resultdiv.removeClass('alert-error').addClass('alert-success');
-						}
-					}
-
-					$('.result').append($resultdiv);
-
+			if (!result) {
+				result = pluralRuleParser(rule + '', options.number);
+				if (result) {
+					$resultdiv.removeClass('alert-error').addClass('alert-success');
 				}
-				$('.result').show();
 			}
+
+			$('.result').append($resultdiv);
+
 		}
 	}
 
