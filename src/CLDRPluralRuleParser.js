@@ -13,10 +13,9 @@
 
 /**
  * Evaluates a plural rule in CLDR syntax for a number
- * @param rule
- * @param number
- * @return true|false|null true if evaluation passed, false if evaluation failed.
- * 		null if parsing failed.
+ * @param {string} rule
+ * @param {integer} number
+ * @return {boolean} true if evaluation passed, false if evaluation failed.
  */
 
 function pluralRuleParser(rule, number) {
@@ -24,8 +23,8 @@ function pluralRuleParser(rule, number) {
 	Syntax: see http://unicode.org/reports/tr35/#Language_Plural_Rules
 	-----------------------------------------------------------------
 	condition     = and_condition ('or' and_condition)*
-                ('@integer' samples)?
-                ('@decimal' samples)?
+		('@integer' samples)?
+		('@decimal' samples)?
 	and_condition = relation ('and' relation)*
 	relation      = is_relation | in_relation | within_relation
 	is_relation   = expr 'is' ('not')? value
@@ -57,9 +56,7 @@ function pluralRuleParser(rule, number) {
 		relation,
 		result,
 		whitespace = makeRegexParser(/^\s+/),
-		// value         = digit+
 		value = makeRegexParser(/^\d+/),
-		decimal = makeRegexParser(/^\d+\.?\d*/),
 		_n_ = makeStringParser('n'),
 		_i_ = makeStringParser('i'),
 		_f_ = makeStringParser('f'),
@@ -169,10 +166,10 @@ function pluralRuleParser(rule, number) {
 	function i() {
 		var result = _i_();
 		if (result === null) {
-			debug(' -- failed i', parseInt(number));
+			debug(' -- failed i', parseInt(number, 10));
 			return result;
 		}
-		result = parseInt(number);
+		result = parseInt(number, 10);
 		debug(' -- passed i ', result);
 		return result;
 	}
@@ -186,7 +183,7 @@ function pluralRuleParser(rule, number) {
 			debug(' -- failed n ', number);
 			return result;
 		}
-		result = parseFloat(number);
+		result = parseFloat(number, 10);
 		debug(' -- passed n ', result);
 		return result;
 	}
@@ -237,7 +234,7 @@ function pluralRuleParser(rule, number) {
 	 * number of visible fraction digits in n, without trailing zeros.
 	 */
 	function w() {
-		var result = _v_();
+		var result = _w_();
 		if (result === null) {
 			debug(' -- failed w ', number);
 			return result;
@@ -301,7 +298,7 @@ function pluralRuleParser(rule, number) {
 			debug(' -- passed not_in: ' + result[0] + ' != ' + result[4]);
 			var range_list = result[4];
 			for (var i = 0; i < range_list.length; i++) {
-				if (parseInt(range_list[i], 10) === parseInt(result[0])) {
+				if (parseInt(range_list[i], 10) === parseInt(result[0], 10)) {
 					return false;
 				}
 			}
@@ -362,7 +359,7 @@ function pluralRuleParser(rule, number) {
 			debug(' -- passed _in:' + result);
 			var range_list = result[5];
 			for (var i = 0; i < range_list.length; i++) {
-				if (parseInt(range_list[i], 10) === parseInt(result[0])) {
+				if (parseInt(range_list[i], 10) === parseInt(result[0], 10)) {
 					return (result[1][0] !== 'not');
 				}
 			}
@@ -383,8 +380,8 @@ function pluralRuleParser(rule, number) {
 		if (result !== null) {
 			debug(' -- passed within');
 			var range_list = result[5];
-			if ((result[0] >= parseInt(range_list[0])) &&
-				(result[0] < parseInt(range_list[range_list.length - 1]))) {
+			if ((result[0] >= parseInt(range_list[0], 10)) &&
+				(result[0] < parseInt(range_list[range_list.length - 1], 10))) {
 				return (result[1][0] !== 'not');
 			}
 			return (result[1][0] === 'not');
@@ -400,7 +397,9 @@ function pluralRuleParser(rule, number) {
 	function and() {
 		var result = sequence([relation, nOrMore(0, andTail)]);
 		if (result) {
-			if (!result[0]) return false;
+			if (!result[0]) {
+				return false;
+			}
 			for (var i = 0; i < result[1].length; i++) {
 				if (!result[1][i]) {
 					return false;
