@@ -23,13 +23,15 @@ This tool is a demonstration of a <a href="cldrpluralparser.js">javascript parse
 for the plural rules in that syntax.
 
 For a given number in a language, this tool tells which plural form it belongs.
-The plural rules are taken from the CLDR  data file (<a href="plural.xml">plural.xml</a>.
+The plural rules are taken from the CLDR  data file
 
-See a demonstration of the javascript parser at:
-http://thottingal.in/projects/js/plural/
+Example
+--------
+Demonstration of the javascript parser at:
+http://thottingal.in/projects/js/plural/demo/
 
 Test
-----------
+----
 
 Before you can run the tests, make sure the submodules are updated:
 ```
