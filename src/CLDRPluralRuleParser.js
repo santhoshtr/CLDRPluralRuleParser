@@ -44,7 +44,7 @@ function pluralRuleParser(rule, number) {
 	*/
 
 	// We don't evaluate the samples section of the rule. Ignore it.
-	rule = rule.split('@')[0].trim();
+	rule = rule.split('@')[0].replace(/^\s*/, '').replace(/\s*$/, '');
 
 	if (!rule.length) {
 		// Empty rule or 'other' rule.
