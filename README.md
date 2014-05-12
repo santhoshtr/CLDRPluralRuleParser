@@ -32,12 +32,6 @@ http://thottingal.in/projects/js/plural/demo/
 
 Test
 ----
-
-Before you can run the tests, make sure the submodules are updated:
-```
-git submodule update --init
-```
-
-Then open up `./test/index.html` in your browser.
+Open up `./test/index.html` in your browser.
 
 
