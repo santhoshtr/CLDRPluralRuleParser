@@ -1,0 +1,19 @@
+{
+    "author": "Santhosh Thottingal",
+    "name": "cldrpluralparser",
+    "description": "Node module to find out the plural form for a given number in a language by parsing CLDR plural form rules.",
+    "version": "1.1.2",
+    "repository": {
+        "url": "https://github.com/santhoshtr/CLDRPluralRuleParser"
+    },
+    "bin": {
+        "cldrpluralparser": "./src/cli.js"
+    },
+    "main": "./src/./src/cli.js",
+    "dependencies": {},
+    "devDependencies": {},
+    "optionalDependencies": {},
+    "engines": {
+        "node": "*"
+    }
+}

@@ -1,7 +1,7 @@
 CLDR Plural Rule Evaluator
 ==========================
 Find out the plural form for a given number in a language
----------------------------------------------------------
+[![NPM version](https://badge.fury.io/js/cldrpluralparser.svg)](https://www.npmjs.org/package/cldrpluralparser)
 
 Quick start
 ----------
@@ -33,5 +33,17 @@ http://thottingal.in/projects/js/plural/demo/
 Test
 ----
 Open up `./test/index.html` in your browser.
+
+Node module
+-----------
+This is also available as a node module. You can install it using:
+
+`npm install cldrpluralparser`
+
+Once installed it provides a command line utility named cldrpluralparser too.
+```
+$ cldrpluralparser 'n is 1' 0
+false
+```
 
 
