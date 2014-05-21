@@ -2,7 +2,9 @@
  * cldrpluralparser.js
  * A parser engine for CLDR plural rules.
  *
- * Copyright 2012-2013 GPLV3+
+ * Copyright 2012-2014 Santhosh Thottingal and other contributors
+ * Released under the MIT license
+ * http://opensource.org/licenses/MIT
  *
  * @version 0.1.0
  * @source https://github.com/santhoshtr/CLDRPluralRuleParser
