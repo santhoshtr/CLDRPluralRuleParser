@@ -6,7 +6,6 @@
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
  *
- * @version 0.1.0
  * @source https://github.com/santhoshtr/CLDRPluralRuleParser
  * @author Santhosh Thottingal <santhosh.thottingal@gmail.com>
  * @author Timo Tijhof
