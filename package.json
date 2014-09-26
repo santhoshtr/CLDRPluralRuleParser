@@ -17,6 +17,9 @@
         }
     ],
 	"dependencies": {},
+	"peerDependencies": {
+		"cldr-data": ">=25"
+	},
 	"devDependencies": {},
 	"optionalDependencies": {},
 	"engines": {
