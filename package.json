@@ -14,8 +14,8 @@
 		{
 			"type": "MIT",
 			"url": "http://opensource.org/licenses/MIT"
-        }
-    ],
+		}
+	],
 	"dependencies": {},
 	"devDependencies": {},
 	"optionalDependencies": {},
