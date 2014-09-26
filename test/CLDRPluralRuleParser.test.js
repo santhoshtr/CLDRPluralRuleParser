@@ -91,18 +91,23 @@ jQuery.each({
 	});
 });
 
+function eachRule(plurals, callback) {
+	var locale, rules, count;
+	for (locale in plurals) {
+		rules = plurals[locale];
+		for (count in rules) {
+			callback(rules[count]);
+		}
+	}
+}
+
 // Make sure we can parse all plural rules with out errors
-jQuery.ajax({
-	type: 'GET',
-	url: '../data/plurals.xml',
-	dataType: 'xml'
-}).done(function (xml) {
+jQuery.getJSON('../data/plurals.json').done(function (cldr) {
 	QUnit.test('Parsing test', function (assert) {
 		var plurals, number, rule, j, integerSamples, decimalSamples;
-		plurals = xml.getElementsByTagName('pluralRule');
-		for (var i = 0; i < plurals.length; i++) {
+		plurals = cldr.supplemental['plurals-type-cardinal'];
+		eachRule(plurals, function(rule) {
 			integerSamples = decimalSamples = [];
-			rule = plurals[i].textContent;
 			// Try whether we can parse the rule
 			assert.notEqual(pluralRuleParser(rule, i), null, rule);
 			// Get sample numbers from the rule.
@@ -136,6 +141,6 @@ jQuery.ajax({
 				}
 				assert.equal(pluralRuleParser(rule, number), true, '[' + number + ']' + rule);
 			}
-		}
+		});
 	});
 });
