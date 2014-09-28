@@ -9,7 +9,7 @@
 	"bin": {
 		"cldrpluralruleparser": "./src/cli.js"
 	},
-	"main": "./src/./src/cli.js",
+	"main": "./src/cli.js",
 	"licenses": [
 		{
 			"type": "MIT",
