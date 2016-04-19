@@ -10,12 +10,7 @@
 		"cldrpluralruleparser": "./src/cli.js"
 	},
 	"main": "./src/cli.js",
-	"licenses": [
-		{
-			"type": "MIT",
-			"url": "http://opensource.org/licenses/MIT"
-		}
-	],
+	"license": "MIT",
 	"dependencies": {},
 	"peerDependencies": {
 		"cldr-data": ">=25"
