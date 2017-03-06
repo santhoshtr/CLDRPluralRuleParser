@@ -10,54 +10,49 @@
 </head>
 
 <body>
-	<pre/>
+	<pre></pre>
 	<script type="text/javascript">
+	"use strict";
+
 	$.ajax({
 		type: 'GET',
-		url: '../plurals.xml',
-		dataType: 'xml'
+		url: '../data/plurals.json',
+		dataType: 'json'
 	}).done(parse);
 
-	function parse(xmlDoc) {
-		var pluralRules, i, locales, plurals,
-			j, k, rule, result;
+	function parse( json ) {
+		var result, keys, rules, i, key, pluralKeyword, locale, localeRules, rule;
 
-		result = {
-			pluralRules: {}
-		};
-		pluralRules = xmlDoc.getElementsByTagName('pluralRules');
-		for (i = 0; i < pluralRules.length; i++) {
-			locales = pluralRules[i].getAttribute('locales').split(' ');
-			for (j = 0; j < locales.length; j++) {
-				result.pluralRules[locales[j]] = {};
-				plurals = pluralRules[i].getElementsByTagName('pluralRule');
-				if (plurals.length === 1) {
-					// they are just the  'other' rules
-					result.pluralRules[locales[j]] = undefined;
+		result = {};
+		rules = json.supplemental[ 'plurals-type-cardinal' ];
+		keys = Object.keys( rules );
+		for ( i = 0; i < keys.length; i++ ) {
+			locale = keys[ i ];
+			localeRules = rules[ locale ];
+
+			result[ locale ] = {};
+
+			for ( key in localeRules ) {
+				if ( !localeRules.hasOwnProperty( key ) ) {
+					continue;
 				}
-				for (k = 0; k < plurals.length - 1; k++) {
-					rule = plurals[k].textContent;
-					rule = rule.split('@')[0].trim();
-					result.pluralRules[locales[j]][plurals[k].getAttribute('count')] = rule;
+
+				pluralKeyword = key.split( '-' )[2];
+				if ( pluralKeyword === 'other' ) {
+					continue;
 				}
-				if (rule === 'n = 1' || rule === 'i = 1 and v = 0') {
-					// default rules
-					result.pluralRules[locales[j]] = undefined;
-				}
+
+				rule = localeRules[ key ];
+				rule = rule.split( '@' )[0].trim();
+				result[ locale ][ pluralKeyword ] = rule;
 			}
 		}
-		sortedResult = {
-			pluralRules: {}
-		};
-		var keys = Object.keys(result.pluralRules);
-		keys.sort();
-		for (i = 0; i < keys.length; i++) {
-			sortedResult.pluralRules[keys[i]] = result.pluralRules[keys[i]]
-		}
-		$('pre').text(JSON.stringify(sortedResult, undefined, '\t').replace(/"/g,'\''));
+
+		$( 'pre' ).text(
+			JSON.stringify( { pluralRules: result }, undefined, '\t' )
+				.replace( /"/g , '\'' )
+		);
 	}
 	</script>
-
 </body>
-
 </html>
