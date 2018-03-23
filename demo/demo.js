@@ -2,8 +2,7 @@
 (function($) {
 	"use strict";
 
-	// CLDR's json.zip has this file in supplemental folder.
-	$.getJSON('../data/plurals.json', init);
+	$.getJSON('../node_modules/cldr-data/supplemental/plurals.json', init);
 
 	var pluraldata = {};
 
