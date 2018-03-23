@@ -12,15 +12,13 @@
 	"main": "./src/cli.js",
 	"license": "MIT",
 	"dependencies": {},
-	"peerDependencies": {
-		"cldr-data": ">=32"
-	},
 	"devDependencies": {
 		"chai": "^3.5.0",
 		"mocha": "^4.0.1",
 		"eslint": "^4.11.0",
 		"mocha-eslint": "^4.1.0",
-		"nsp": "^3.1.0"
+		"nsp": "^3.1.0",
+		"cldr-data": ">=32"
 	},
 	"optionalDependencies": {},
 	"scripts": {
