@@ -7,9 +7,9 @@
 		"url": "https://github.com/santhoshtr/CLDRPluralRuleParser"
 	},
 	"bin": {
-		"cldrpluralruleparser": "./src/cli.js"
+		"cldrpluralruleparser": "./bin/cldrpluralruleparser.js"
 	},
-	"main": "./src/cli.js",
+	"main": "./src/CLDRPluralRuleParser.js",
 	"license": "MIT",
 	"dependencies": {},
 	"devDependencies": {
@@ -20,7 +20,6 @@
 		"nsp": "^3.1.0",
 		"cldr-data": ">=32"
 	},
-	"optionalDependencies": {},
 	"scripts": {
 		"test": "mocha && nsp check"
 	},
