@@ -1,7 +1,10 @@
-/* global pluralRuleParser, QUnit, jQuery */
-QUnit.module('pluralRuleParser');
+'use strict';
 
-jQuery.each({
+const should = require('chai').should();
+const pluralRuleParser = require('../src/CLDRPluralRuleParser');
+const pluralsData = require("cldr-data/supplemental/plurals");
+
+const tests = {
 	'n is 0 @integer 0 @decimal 0.0, 0.00, 0.000, 0.0000': {
 		pass: [0, 0.0, 0.00, 0.000, 0.0000],
 		fail: [1, 19]
@@ -44,7 +47,7 @@ jQuery.each({
 		fail: [9, 4, 8, 10],
 	},
 	'v = 0 and i != 1 and i % 10 = 0..1 or v = 0 and i % 10 = 5..9 or v = 0 and i % 100 = 12..14 @integer 0, 5~19, 100, 1000, 10000, 100000, 1000000, …': {
-		pass: [0, 5, 9, 19, 10, 1000, 10000, 100000, 1000000, ],
+		pass: [0, 5, 9, 19, 10, 1000, 10000, 100000, 1000000,],
 		fail: [3, 4]
 	},
 	'n % 10 = 1 and n % 100 != 11,71,91 @integer 1, 21, 31, 41, 51, 61, 81, 101, 1001, … @decimal 1.0, 21.0, 31.0, 41.0, 51.0, 61.0, 81.0, 101.0, 1001.0, …': {
@@ -70,82 +73,87 @@ jQuery.each({
 		pass: [0.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 100.0, 1000.0, 10000.0, 100000.0, 1000000.0],
 		fail: [0.1, 0.2, 1.0, 1.1, 1.2, 1.9, 10.2, 100.2, 1000.2]
 	}
-}, function (rule, expected) {
-	QUnit.test(rule, function (assert) {
-		// Turn into arrays
-		var pass = expected.pass ?
-			jQuery.isArray(expected.pass) ? expected.pass : [expected.pass] : [];
-		var fail = expected.fail ?
-			jQuery.isArray(expected.fail) ? expected.fail : [expected.fail] : [];
-
-		jQuery.each(pass, function (i, number) {
-			assert.strictEqual(
-				pluralRuleParser(rule, number),
-				true,
-				'n=' + number + ' should pass'
-			);
-		});
-		jQuery.each(fail, function (i, number) {
-			assert.strictEqual(
-				// pluralRuleParser returns null or false. Cast to boolean with !!.
-				!!pluralRuleParser(rule, number),
-				false,
-				' n=' + number + ' should fail'
-			);
-		});
-	});
-});
-
-function eachRule(plurals, callback) {
-	var locale, rules, count;
-	for (locale in plurals) {
-		rules = plurals[locale];
-		for (count in rules) {
-			callback(rules[count]);
-		}
-	}
 }
 
-// Make sure we can parse all plural rules with out errors
-jQuery.getJSON('../data/plurals.json').done(function (cldr) {
-	QUnit.test('Parsing test', function (assert) {
-		var plurals, number, j, integerSamples, decimalSamples;
-		plurals = cldr.supplemental['plurals-type-cardinal'];
-		eachRule(plurals, function(rule) {
-			integerSamples = decimalSamples = [];
-			// Try whether we can parse the rule
-			assert.notEqual(pluralRuleParser(rule, 1), null, rule);
-			// Get sample numbers from the rule.
-			if (rule.split('@')[1].indexOf('integer') === 0) {
-				integerSamples = rule.split('@')[1].replace('integer', '').split(',');
-			}
-			if (rule.split('@')[2]) {
-				decimalSamples = rule.split('@')[2].replace('decimal', '').split(',');
-			}
-			// Test all integers
-			for (j = 0; j < integerSamples.length; j++) {
-				number = integerSamples[j].trim();
-				if (!number) {
-					continue;
+
+describe('CLDRPluralRuleParser', function () {
+	it('should parse and validate the numbers', function () {
+		for (let rule in tests) {
+			let expected = tests[rule];
+			// Turn into arrays
+			let pass = expected.pass ?
+				Array.isArray(expected.pass) ? expected.pass : [expected.pass] : [];
+			let fail = expected.fail ?
+				Array.isArray(expected.fail) ? expected.fail : [expected.fail] : [];
+
+			pass.forEach(number => {
+				should.equal(
+					pluralRuleParser(rule, number),
+					true,
+					'n=' + number + ' should pass'
+				);
+			});
+			fail.forEach(number => {
+				should.equal(
+					// pluralRuleParser returns null or false. Cast to boolean with !!.
+					!!pluralRuleParser(rule, number),
+					false,
+					' n=' + number + ' should fail'
+				);
+			});
+		}
+	});
+
+	// Make sure we can parse all plural rules with out errors
+	it('should parse all plural rules in plurals.json in cldr', function () {
+		const plurals = pluralsData.supplemental['plurals-type-cardinal'];
+		for (let locale in plurals) {
+			let rules = plurals[locale];
+			for (let count in rules) {
+				let rule = rules[count];
+				let integerSamples = [];
+				let decimalSamples = [];
+				// Try whether we can parse the rule
+				should.not.equal(pluralRuleParser(rule, 1), null, rule);
+				// Get sample numbers from the rule.
+				if (rule.split('@')[1].indexOf('integer') === 0) {
+					integerSamples = rule.split('@')[1].replace('integer', '').split(',');
 				}
-				number = parseInt(number.split('~')[0]);
-				if (!number || isNaN(number)) {
-					continue;
+				if (rule.split('@')[2] && rule.split('@')[2].indexOf('decimal') === 0) {
+					decimalSamples = rule.split('@')[2].replace('decimal', '').split(',');
 				}
-				assert.equal(pluralRuleParser(rule, number), true, '[' + number + ']' + rule);
+				// Test all integers
+				for (let j = 0; j < integerSamples.length; j++) {
+					let number = integerSamples[j].trim();
+					if (!number) {
+						continue;
+					}
+					number = parseInt(number.split('~')[0]);
+					if (!number || isNaN(number)) {
+						continue;
+					}
+					should.equal(pluralRuleParser(rule, number), true, '[' + number + '] ' + rule);
+				}
+				// Test all decimals
+				for (let j = 0; j < decimalSamples.length; j++) {
+					let number = decimalSamples[j].trim();
+					if (!number) {
+						continue;
+					}
+					number = number.split('~')[0];
+					if (!number || isNaN(parseFloat(number))) {
+						continue;
+					}
+					if (locale === 'lag') {
+						// Skipping. See https://unicode.org/cldr/trac/ticket/11015
+						continue;
+					}
+					should.equal(pluralRuleParser(rule, number),
+						true,
+						'[' + number + '] ' + rule + ' in locale ' + locale
+					);
+				}
 			}
-			// Test all decimals
-			for (j = 0; j < integerSamples.length; j++) {
-				number = integerSamples[j].trim();
-				if (!number) {
-					continue;
-				}
-				number = parseFloat(number.split('~')[0]);
-				if (!number || isNaN(number)) {
-					continue;
-				}
-				assert.equal(pluralRuleParser(rule, number), true, '[' + number + ']' + rule);
-			}
-		});
+		}
 	});
 });
