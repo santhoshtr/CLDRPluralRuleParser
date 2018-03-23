@@ -2,6 +2,7 @@ CLDR Plural Rule Evaluator
 ==========================
 Find out the plural form for a given number in a language
 [![NPM version](https://badge.fury.io/js/cldrpluralruleparser.svg)](https://www.npmjs.org/package/cldrpluralruleparser)
+[![Build Status](https://travis-ci.org/santhoshtr/CLDRPluralRuleParser.svg?branch=master)](https://travis-ci.org/santhoshtr/CLDRPluralRuleParser)
 
 Quick start
 ----------
