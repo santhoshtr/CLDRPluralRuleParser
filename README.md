@@ -9,6 +9,7 @@ Quick start
 
 ```bash
 git clone https://github.com/santhoshtr/CLDRPluralRuleParser.git
+npm install
 ```
 
 Documentation
@@ -33,7 +34,7 @@ http://thottingal.in/projects/js/plural/demo/
 
 Test
 ----
-Open up `./test/index.html` in your browser.
+```npm test```
 
 Node module
 -----------
