@@ -25,6 +25,7 @@
 		// AMD. Register as an anonymous module.
 		define(factory);
 	} else if (typeof exports === 'object') {
+		/* global module */
 		// Node. Does not work with strict CommonJS, but
 		// only CommonJS-like environments that support module.exports,
 		// like Node.
