@@ -20,7 +20,7 @@
 		"cldr-data": ">=32"
 	},
 	"scripts": {
-		"test": "mocha"
+		"test": "mocha test/*.test.js test/lint.js"
 	},
 	"engines": {
 		"node": ">=6.11.1"
