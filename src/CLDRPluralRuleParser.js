@@ -322,7 +322,7 @@ function pluralRuleParser(rule, number) {
 			return null;
 		}
 
-		debug(' -- passed ' + parseInt(result[0], 10) + ' ' + result[2] + ' ' + parseInt(result[4], 10));
+		debug(' -- passed ', parseInt(result[0], 10), result[2], parseInt(result[4], 10));
 
 		return parseFloat(result[0]) % parseInt(result[4], 10);
 	}
@@ -344,7 +344,7 @@ function pluralRuleParser(rule, number) {
 		var result = sequence([expression, whitespace, choice([_is_]), whitespace, value]);
 
 		if (result !== null) {
-			debug(' -- passed is : ' + result[0] + ' == ' + parseInt(result[4], 10));
+			debug(' -- passed is :', result[0], ' == ', parseInt(result[4], 10));
 
 			return result[0] === parseInt(result[4], 10);
 		}
@@ -361,7 +361,7 @@ function pluralRuleParser(rule, number) {
 		);
 
 		if (result !== null) {
-			debug(' -- passed isnot: ' + result[0] + ' != ' + parseInt(result[4], 10));
+			debug(' -- passed isnot: ', result[0], ' != ', parseInt(result[4], 10));
 
 			return result[0] !== parseInt(result[4], 10);
 		}
@@ -376,7 +376,7 @@ function pluralRuleParser(rule, number) {
 			result = sequence([expression, whitespace, _isnot_sign_, whitespace, rangeList]);
 
 		if (result !== null) {
-			debug(' -- passed not_in: ' + result[0] + ' != ' + result[4]);
+			debug(' -- passed not_in: ', result[0], ' != ', result[4]);
 			range_list = result[4];
 
 			for (i = 0; i < range_list.length; i++) {
@@ -459,7 +459,7 @@ function pluralRuleParser(rule, number) {
 		);
 
 		if (result !== null) {
-			debug(' -- passed _in:' + result);
+			debug(' -- passed _in:', result);
 
 			range_list = result[5];
 
@@ -541,7 +541,7 @@ function pluralRuleParser(rule, number) {
 		var result = sequence([whitespace, _and_, whitespace, relation]);
 
 		if (result !== null) {
-			debug(' -- passed andTail' + result);
+			debug(' -- passed andTail', result);
 
 			return result[3];
 		}
@@ -556,7 +556,7 @@ function pluralRuleParser(rule, number) {
 		var result = sequence([whitespace, _or_, whitespace, and]);
 
 		if (result !== null) {
-			debug(' -- passed orTail: ' + result[3]);
+			debug(' -- passed orTail: ', result[3]);
 
 			return result[3];
 		}
@@ -597,7 +597,7 @@ function pluralRuleParser(rule, number) {
 	}
 
 	if (pos !== rule.length) {
-		debug('Warning: Rule not parsed completely. Parser stopped at ' + rule.substr(0, pos) + ' for rule: ' + rule);
+		debug('Warning: Rule not parsed completely. Parser stopped at ', rule.substr(0, pos), ' for rule: ', rule);
 	}
 
 	return result;
