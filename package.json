@@ -17,11 +17,10 @@
 		"mocha": "^4.0.1",
 		"eslint": "^4.11.0",
 		"mocha-eslint": "^4.1.0",
-		"nsp": "^3.1.0",
 		"cldr-data": ">=32"
 	},
 	"scripts": {
-		"test": "mocha && nsp check"
+		"test": "mocha test/*.test.js test/lint.js"
 	},
 	"engines": {
 		"node": ">=6.11.1"

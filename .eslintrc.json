@@ -1,15 +1,11 @@
 {
+	"root": true,
 	"extends": "eslint:recommended",
 	"parserOptions": {
-		"ecmaVersion": 6
+		"ecmaVersion": 5
 	},
 	"env": {
-		"es6": true,
-		"browser": true,
-		"jquery": true,
-		"qunit": true,
-		"node": true,
-		"mocha": true
+		"browser": true
 	},
 	"globals": {
 		"define": false
