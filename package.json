@@ -9,7 +9,9 @@
 	"bin": {
 		"cldrpluralruleparser": "./bin/cldrpluralruleparser.js"
 	},
-	"main": "dist/cldrpluralruleparser.js",
+	"browser": "dist/cldrpluralruleparser.js",
+	"main": "dist/cldrpluralruleparser.cjs.js",
+	"module": "dist/cldrpluralruleparser.esm.js",
 	"license": "MIT",
 	"devDependencies": {
 		"cldr-data": "^36.0.0",
