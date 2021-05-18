@@ -1,13 +1,3 @@
 {
-	"root": true,
-	"extends": "eslint:recommended",
-	"parserOptions": {
-		"ecmaVersion": 5
-	},
-	"env": {
-		"browser": true
-	},
-	"globals": {
-		"define": false
-	}
+    "extends": "standard"
 }

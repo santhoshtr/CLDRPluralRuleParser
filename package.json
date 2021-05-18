@@ -9,19 +9,26 @@
 	"bin": {
 		"cldrpluralruleparser": "./bin/cldrpluralruleparser.js"
 	},
-	"main": "./src/CLDRPluralRuleParser.js",
+	"main": "dist/cldrpluralruleparser.js",
 	"license": "MIT",
 	"devDependencies": {
-		"chai": "^4.3.4",
 		"cldr-data": "^36.0.0",
-		"eslint": "^4.11.0",
+		"esbuild": "^0.11.16",
+		"eslint": "^7.25.0",
+		"eslint-config-standard": "^16.0.2",
+		"eslint-plugin-import": "^2.20.2",
+		"eslint-plugin-node": "^11.1.0",
+		"eslint-plugin-promise": "^4.2.1",
+		"eslint-plugin-standard": "^5.0.0",
+		"esm": "^3.2.25",
 		"mocha": "^8.4.0",
-		"mocha-eslint": "^7.0.0"
+		"mocha-eslint": "^7.0.0",
+		"rollup": "^2.46.0",
+		"rollup-plugin-esbuild": "^4.2.3"
 	},
 	"scripts": {
-		"test": "mocha test/*.test.js test/lint.js"
-	},
-	"engines": {
-		"node": ">=6.11.1"
+		"test": "mocha test/*.test.js",
+		"lint": "eslint src test",
+		"build": "rollup -c"
 	}
 }
