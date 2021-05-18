@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var parser = require(__dirname + '/../dist/cldrpluralruleparser.js');
+var parser = require(__dirname + '/../');
 if (process.argv.length < 3) {
     process.stdout.write("Please provide the rule and a number to test\n");
     process.stdout.write("Example:\n");

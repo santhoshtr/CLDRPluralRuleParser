@@ -1,7 +1,7 @@
 'use strict'
 
 const perf = require('perf_hooks').performance
-const pluralRuleParser = require('../src/CLDRPluralRuleParser')
+const pluralRuleParser = require('../')
 
 // These are two example inputs,
 // taken from MediaWiki as deployed on Wikipedia in September 2018.

@@ -1,4 +1,4 @@
-import pluralRuleParser from '../src/CLDRPluralRuleParser'
+import pluralRuleParser from '../'
 import assert from 'assert'
 import pluralsData from 'cldr-data/supplemental/plurals'
 
