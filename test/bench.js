@@ -1,7 +1,5 @@
-'use strict'
-
-const perf = require('perf_hooks').performance
-const pluralRuleParser = require('../')
+import pluralRuleParser from '../src/CLDRPluralRuleParser.js'
+import { performance } from 'perf_hooks'
 
 // These are two example inputs,
 // taken from MediaWiki as deployed on Wikipedia in September 2018.
@@ -36,7 +34,7 @@ const iterations = 1000
 
 function bench (name) {
   function end (ops) {
-    const duration = perf.now() - start
+    const duration = performance.now() - start
     const rate = ops / (duration / 1e3)
     const avg = duration / ops
     console.log(
@@ -48,7 +46,7 @@ function bench (name) {
       duration.toFixed(2)
     )
   }
-  const start = perf.now()
+  const start = performance.now()
   return end
 }
 

@@ -1,6 +1,6 @@
-import pluralRuleParser from '../'
+import pluralRuleParser from '../src/CLDRPluralRuleParser.js'
 import assert from 'assert'
-import pluralsData from 'cldr-data/supplemental/plurals'
+import pluralsData from 'cldr-data/supplemental/plurals.json' assert { type: 'json' }
 
 const tests = {
   'n is 0 @integer 0 @decimal 0.0, 0.00, 0.000, 0.0000': {
