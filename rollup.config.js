@@ -1,46 +1,29 @@
-import pkg from './package.json'
+import pkg from './package.json' assert { type: 'json' }
+import json from '@rollup/plugin-json'
 import esbuild from 'rollup-plugin-esbuild'
 
 export default [
-  // browser-friendly UMD build
   {
     input: 'src/CLDRPluralRuleParser.js',
-    output: {
-      name: 'pluralRuleParser',
-      file: pkg.browser,
-      format: 'umd'
-    },
+    output: [
+      {
+        name: pkg.name,
+        file: pkg.module,
+        format: 'esm',
+        sourcemap: true
+      },
+      {
+        name: pkg.name,
+        file: pkg.main,
+        format: 'umd',
+        sourcemap: true
+      }
+    ],
     plugins: [
+      json(),
       esbuild({
-        minify: true
-      })
-    ]
-  },
-  // CommonJS (for Node) build.
-  {
-    input: 'src/CLDRPluralRuleParser.js',
-    output: {
-      file: pkg.main,
-      format: 'cjs',
-      exports: 'default'
-    },
-    plugins: [
-      esbuild({
-        minify: true
-      })
-    ]
-  },
-  // ES module (for bundlers) build.
-  {
-    input: 'src/CLDRPluralRuleParser.js',
-    output: {
-      file: pkg.module,
-      format: 'es',
-      exports: 'default'
-    },
-    plugins: [
-      esbuild({
-        minify: true
+        sourceMap: true,
+        minify: false
       })
     ]
   }
