@@ -4,7 +4,7 @@ import pluralRuleParser from '../dist/esm/cldrpluralruleparser.js';
 (function ($) {
   'use strict'
 
-  $.getJSON('../node_modules/cldr-data/supplemental/plurals.json', init)
+  $.getJSON('./plurals.json', init)
 
   let pluraldata = {}
 
