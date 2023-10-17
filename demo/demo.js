@@ -1,5 +1,5 @@
 /* globals pluralRuleParser, jQuery */
-import pluralRuleParser from '../dist/esm/cldrpluralruleparser.js';
+import pluralRuleParser from '../src/CLDRPluralRuleParser.js';
 
 (function ($) {
   'use strict'
