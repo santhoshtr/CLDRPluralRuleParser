@@ -16,7 +16,7 @@ Documentation
 ----------
 
 Unlike English, for many languages, the plural forms are just not 2 forms.
-If you look at the <a href="http://unicode.org/repos/cldr-tmp/trunk/diff/supplemental/language_plural_rules.html#pl">CLDR plural rules table</a>
+If you look at the [CLDR plural rules table](http://cldr.unicode.org/index/cldr-spec/plural-rules)
 you can easily understand this. The rules are defined in a particular syntax
 (an eg: for Russian, the plural few is applied when the rule
 "`n mod 10 in 2..4 and n mod 100 not in 12..14;`" is passed).
