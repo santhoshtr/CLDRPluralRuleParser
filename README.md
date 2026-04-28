@@ -26,10 +26,6 @@ for the plural rules in that syntax.
 For a given number in a language, this tool tells which plural form it belongs.
 The plural rules are taken from the CLDR data file.
 
-## Example
-
-Demonstration of the javascript parser at: http://thottingal.in/projects/js/plural/demo/
-
 ## Test
 
 ```bash
