@@ -31,7 +31,7 @@ function pluralRuleParser(rule, number) {
     in_relation   = expr (('not')? 'in' | '=' | '!=') range_list
     within_relation = expr ('not')? 'within' range_list
     expr          = operand (('mod' | '%') value)?
-    operand       = 'n' | 'i' | 'f' | 't' | 'v' | 'w'
+    operand       = 'n' | 'i' | 'f' | 't' | 'v' | 'w' | 'e' | 'c'
     range_list    = (range | value) (',' range_list)*
     value         = digit+
     digit         = 0|1|2|3|4|5|6|7|8|9
@@ -61,6 +61,8 @@ function pluralRuleParser(rule, number) {
 	const _t_ = makeStringParser("t");
 	const _v_ = makeStringParser("v");
 	const _w_ = makeStringParser("w");
+	const _e_ = makeStringParser("e");
+	const _c_ = makeStringParser("c");
 	const _is_ = makeStringParser("is");
 	const _isnot_ = makeStringParser("is not");
 	const _isnot_sign_ = makeStringParser("!=");
@@ -283,8 +285,44 @@ function pluralRuleParser(rule, number) {
 		return result;
 	}
 
-	// operand       = 'n' | 'i' | 'f' | 't' | 'v' | 'w'
-	const operand = choice([n, i, f, t, v, w]);
+	/**
+	 * Compact decimal exponent value (e or c), always 0 for plain numbers.
+	 */
+	function e() {
+		let result = _e_();
+
+		if (result === null) {
+			debug(" -- failed e ", number);
+
+			return result;
+		}
+
+		result = 0;
+		debug(" -- passed e ", result);
+
+		return result;
+	}
+
+	/**
+	 * Compact decimal exponent value (c, alias for e), always 0 for plain numbers.
+	 */
+	function c() {
+		let result = _c_();
+
+		if (result === null) {
+			debug(" -- failed c ", number);
+
+			return result;
+		}
+
+		result = 0;
+		debug(" -- passed c ", result);
+
+		return result;
+	}
+
+	// operand       = 'n' | 'i' | 'f' | 't' | 'v' | 'w' | 'e' | 'c'
+	const operand = choice([n, i, f, t, v, w, e, c]);
 
 	// expr          = operand (('mod' | '%') value)?
 	const expression = choice([mod, operand]);

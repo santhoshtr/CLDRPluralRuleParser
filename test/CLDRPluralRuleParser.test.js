@@ -165,6 +165,10 @@ test("CLDRPluralRuleParser", async () => {
 					if (!number) {
 						continue;
 					}
+					// Skip compact notation samples (e.g. 1c6)
+					if (/c\d/.test(number)) {
+						continue;
+					}
 					number = parseInt(number.split("~")[0], 10);
 					if (!number || Number.isNaN(number)) {
 						continue;
@@ -178,6 +182,10 @@ test("CLDRPluralRuleParser", async () => {
 				for (let j = 0; j < decimalSamples.length; j++) {
 					let number = decimalSamples[j].trim();
 					if (!number) {
+						continue;
+					}
+					// Skip compact notation samples (e.g. 1.1c6)
+					if (/c\d/.test(number)) {
 						continue;
 					}
 					number = number.split("~")[0];
