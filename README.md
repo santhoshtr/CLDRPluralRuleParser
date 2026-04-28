@@ -50,3 +50,19 @@ Once installed it provides a command line utility named `cldrpluralruleparser` t
 $ cldrpluralruleparser 'n is 1' 0
 false
 ```
+
+## CLDR Version compatibility
+
+This parser is expected to handle latest version of CLDR spec for plurals and data from latest version.
+This is tested by running all rules of plurals.json with the parser.
+
+**Maintainers Note**
+
+Download latest plural.json from CLDR Json releases from https://github.com/unicode-org/cldr-json
+and replace demo/plurals.json and run `npm run test`. All tests should pass. If CLDR updates the spec,
+and plurals.json has unsupported rules, tests will fail and we need to update the parser.
+
+
+## Reference
+
+* https://cldr.unicode.org/index/cldr-spec/plural-rules
