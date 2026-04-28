@@ -154,12 +154,16 @@ test("CLDRPluralRuleParser", async () => {
 				let integerSamples = [];
 				let decimalSamples = [];
 				assert.notStrictEqual(pluralRuleParser(rule, 1), null, rule);
-				if (rule.split("@")[1].indexOf("integer") === 0) {
-					integerSamples = rule.split("@")[1].replace("integer", "").split(",");
+				const parts = rule.split("@");
+				for (let p = 1; p < parts.length; p++) {
+					const part = parts[p];
+					if (part.indexOf("integer") === 0) {
+						integerSamples = part.replace("integer", "").split(",");
+					} else if (part.indexOf("decimal") === 0) {
+						decimalSamples = part.replace("decimal", "").split(",");
+					}
 				}
-				if (rule.split("@")[2] && rule.split("@")[2].indexOf("decimal") === 0) {
-					decimalSamples = rule.split("@")[2].replace("decimal", "").split(",");
-				}
+				let tested = 0;
 				for (let j = 0; j < integerSamples.length; j++) {
 					let number = integerSamples[j].trim();
 					if (!number) {
@@ -178,6 +182,7 @@ test("CLDRPluralRuleParser", async () => {
 						true,
 						`[${number}] ${rule}`,
 					);
+					tested++;
 				}
 				for (let j = 0; j < decimalSamples.length; j++) {
 					let number = decimalSamples[j].trim();
@@ -200,7 +205,12 @@ test("CLDRPluralRuleParser", async () => {
 						true,
 						`[${number}] ${rule} in locale ${locale}`,
 					);
+					tested++;
 				}
+				assert.ok(
+					tested > 0 || locale === "lag",
+					`No samples were tested for rule "${count}" in locale "${locale}": ${rule}`,
+				);
 			}
 		}
 	});
