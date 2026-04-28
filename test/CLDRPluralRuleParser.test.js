@@ -111,6 +111,10 @@ const tests = {
 			],
 			fail: [0.1, 0.2, 1.0, 1.1, 1.2, 1.9, 10.2, 100.2, 1000.2],
 		},
+	// lag locale: 'one' rule - n != 0 fails for decimal string input (known bug)
+	"i = 0,1 and n != 0 @integer 1 @decimal 0.1~1.6": {
+		pass: [1, "0.1", "0.5", "1.0", "1.6"],
+	},
 };
 
 test("CLDRPluralRuleParser", async () => {
