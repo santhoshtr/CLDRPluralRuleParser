@@ -422,7 +422,7 @@ function pluralRuleParser(rule, number) {
 			range_list = result[4];
 
 			for (i = 0; i < range_list.length; i++) {
-				if (parseInt(range_list[i], 10) === parseInt(result[0], 10)) {
+				if (parseInt(range_list[i], 10) === parseFloat(result[0])) {
 					return false;
 				}
 			}
