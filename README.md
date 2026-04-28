@@ -3,7 +3,7 @@
 Find out the plural form for a given number in a language
 
 [![NPM version](https://badge.fury.io/js/cldrpluralruleparser.svg)](https://www.npmjs.org/package/cldrpluralruleparser)
-[![Node.js CI](https://github.com/santhoshtr/CLDRPluralRuleParser/actions/workflows/node.js.yml/badge.svg)](https://github.com/santhoshtr/CLDRPluralRuleParser/actions/workflows/node.js.yml)
+[![Build Status](https://github.com/santhoshtr/CLDRPluralRuleParser/actions/workflows/node.yml/badge.svg)](https://github.com/santhoshtr/CLDRPluralRuleParser/actions/workflows/node.yml)
 
 ## Quick start
 
