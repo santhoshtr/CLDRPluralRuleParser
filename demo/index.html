@@ -1,37 +1,40 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 	<head>
-		<meta charset="utf-8"/>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="color-scheme" content="light dark" />
 		<title>CLDR Plural Rule Evaluator</title>
-		<meta name="author" content="Santhosh Thottingal"/>
-		<!-- Libs -->
-		<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet"/>
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-		<!-- Demo -->
+		<meta name="author" content="Santhosh Thottingal" />
+		<link rel="stylesheet" href="demo.css" />
 		<script src="demo.js" type="module"></script>
 	</head>
 
 	<body>
-
 		<div class="container">
-			<header id="overview" class="jumbotron subhead">
-  <h1>CLDR Plural Rule Evaluator</h1>
-  <p class="lead">Find out the plural form for a given number in a language</p>
-</header>
-			<form class="well form-horizontal">
-				<div class="control-group">
-					<label for="input-number" class="control-label">Number</label>
-					<div class="controls">
-						<input type="number" step="any" id="input-number" class="input" value="1" placeholder="Type a number here..."/>
-						<p class="help-block">
+			<header>
+				<h1>CLDR Plural Rule Evaluator</h1>
+				<p>Find out the plural form for a given number in a language</p>
+			</header>
+
+			<main>
+				<form class="form">
+					<div class="form-group">
+						<label for="input-number">Number</label>
+						<input
+							type="number"
+							step="any"
+							id="input-number"
+							value="1"
+							placeholder="Type a number here..."
+						/>
+						<p class="help-text">
 							Type a number here. The plural form of that number will be evaluated
 						</p>
 					</div>
-				</div>
-				<div class="control-group">
-					<label for="input-language" class="control-label">Language</label>
-					<div class="controls">
+
+					<div class="form-group">
+						<label for="input-language">Language</label>
 						<select id="input-language">
 							<option value="aa">aa - Qafár af</option>
 							<option value="ab">ab - Аҧсшәа</option>
@@ -48,7 +51,7 @@
 							<option value="arn">arn - mapudungun</option>
 							<option value="ary">ary - Maġribi</option>
 							<option value="arz">arz - مصرى</option>
-							<option value="as">as - অসমীয়া</option>
+							<option value="as">as - অসমীয়া</option>
 							<option value="ast">ast - asturianu</option>
 							<option value="av">av - Авар</option>
 							<option value="avk">avk - Kotava</option>
@@ -275,7 +278,7 @@
 							<option value="ny">ny - Chi-Chewa</option>
 							<option value="oc">oc - occitan</option>
 							<option value="om">om - Oromoo</option>
-							<option value="or">or - ଓଡ଼ିଆ</option>
+							<option value="or">or - ଓଡ଼ିଆ</option>
 							<option value="os">os - Ирон</option>
 							<option value="pa">pa - ਪੰਜਾਬੀ</option>
 							<option value="pag">pag - Pangasinan</option>
@@ -381,7 +384,7 @@
 							<option value="uz">uz - Oʻzbek</option>
 							<option value="ve">ve - Tshivenda</option>
 							<option value="vec">vec - vèneto</option>
-							<option value="vep">vep - Vepsän kel’</option>
+							<option value="vep">vep - Vepsän kel'</option>
 							<option value="vi">vi - Tiếng Việt</option>
 							<option value="vls">vls - West-Vlams</option>
 							<option value="vmf">vmf - Mainfränkisch</option>
@@ -412,21 +415,33 @@
 							<option value="zu">zu - isiZulu</option>
 						</select>
 					</div>
-				</div>
-				<div class="result">
 
-				</div>
-				<p class="help-block">
-Unlike English, for many languages, the plural forms are just not 2 forms. If you look at the <a href="http://unicode.org/repos/cldr-tmp/trunk/diff/supplemental/language_plural_rules.html#pl">CLDR plural rules table</a>
-   you can easily understand this.The Rules are defined in a particular syntax(an eg: for Russian, the plural few is applied when the rule "n mod 10 in 2..4 and n mod 100 not in 12..14;" is passed.)
- This tool is a demonstration of a <a href="cldrpluralparser.js"> javascript parser </a>for the plural rules in that syntax. For a given number in a language, this tool tells which plural form it belongs.
-        The plural rules are taken from the CLDR <a href="plural.xml"> plural.xml </a> data file. Thanks for visiting.
-						</p>
-			</form>
+					<div class="result"></div>
+
+					<p class="help-text info">
+						Unlike English, for many languages, the plural forms are just not 2
+						forms. If you look at the
+						<a
+							href="http://unicode.org/repos/cldr-tmp/trunk/diff/supplemental/language_plural_rules.html#pl"
+						>
+							CLDR plural rules table
+						</a>
+						you can easily understand this. The Rules are defined in a particular
+						syntax(an eg: for Russian, the plural few is applied when the rule "n
+						mod 10 in 2..4 and n mod 100 not in 12..14;" is passed.) This tool is
+						a demonstration of a
+						<a href="cldrpluralparser.js"> javascript parser </a>for the plural
+						rules in that syntax. For a given number in a language, this tool tells
+						which plural form it belongs. The plural rules are taken from the CLDR
+						<a href="plural.xml"> plural.xml </a> data file. Thanks for visiting.
+					</p>
+				</form>
+			</main>
 
 			<footer>
 				<p>
-					&copy; Copyright by Santhosh Thottingal ( santhosh dot thottingal at gmail dot com).
+					&copy; Copyright by Santhosh Thottingal (santhosh dot thottingal at gmail
+					dot com).
 				</p>
 			</footer>
 		</div>

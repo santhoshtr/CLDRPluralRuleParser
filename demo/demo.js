@@ -1,49 +1,65 @@
-/* globals pluralRuleParser, jQuery */
 import pluralRuleParser from "../src/CLDRPluralRuleParser.js";
 
-(($) => {
-	$.getJSON("./plurals.json", init);
+let pluraldata = {};
 
-	let pluraldata = {};
-
-	function init(plurals) {
-		pluraldata = plurals;
-		$("#input-language, #input-number").on("change", changeHandler);
+async function init() {
+	try {
+		const response = await fetch("./plurals.json");
+		pluraldata = await response.json();
+		const languageSelect = document.getElementById("input-language");
+		const numberInput = document.getElementById("input-number");
+		languageSelect.addEventListener("change", changeHandler);
+		numberInput.addEventListener("change", changeHandler);
 		changeHandler();
+	} catch (error) {
+		console.error("Failed to load plurals.json:", error);
+		displayError("Failed to load plural rules data");
+	}
+}
+
+function changeHandler() {
+	const locale = document.getElementById("input-language").value;
+	const number = document.getElementById("input-number").value;
+	calculate({ locale, number });
+}
+
+function calculate(options) {
+	const resultContainer = document.querySelector(".result");
+	resultContainer.innerHTML = "";
+
+	const pluralRules =
+		pluraldata.supplemental["plurals-type-cardinal"][options.locale];
+
+	if (!pluralRules) {
+		displayError("No plural rules found");
+		return;
 	}
 
-	function changeHandler() {
-		calculate(pluraldata, {
-			locale: $("#input-language").val(),
-			number: $("#input-number").val(),
-		});
-	}
+	let matched = false;
+	for (const ruleName in pluralRules) {
+		const rule = pluralRules[ruleName];
+		const resultDiv = document.createElement("div");
+		const pluralForm = ruleName.split("-").pop();
 
-	function calculate(pluraldata, options) {
-		let rule, result, $resultdiv;
-
-		$(".result").empty();
-		const pluralRules =
-			pluraldata.supplemental["plurals-type-cardinal"][options.locale];
-		if (!pluralRules) {
-			$(".result").append(
-				$("<div>").addClass("alert alert-error").text("No plural rules found"),
-			);
+		const result = pluralRuleParser(rule, options.number);
+		if (result && !matched) {
+			resultDiv.className = "result-item result-item-match";
+			matched = true;
+		} else {
+			resultDiv.className = "result-item result-item-nomatch";
 		}
-		for (const ruleName in pluralRules) {
-			rule = pluralRules[ruleName];
-			$resultdiv = $("<div>")
-				.addClass("alert alert-error")
-				.html(`${ruleName.split("-").pop()}: ${rule}`);
 
-			if (!result) {
-				result = pluralRuleParser(`${rule}`, options.number);
-				if (result) {
-					$resultdiv.removeClass("alert-error").addClass("alert-success");
-				}
-			}
-
-			$(".result").append($resultdiv);
-		}
+		resultDiv.textContent = `${pluralForm}: ${rule}`;
+		resultContainer.appendChild(resultDiv);
 	}
-})(jQuery);
+}
+
+function displayError(message) {
+	const resultContainer = document.querySelector(".result");
+	const errorDiv = document.createElement("div");
+	errorDiv.className = "result-item result-item-error";
+	errorDiv.textContent = message;
+	resultContainer.appendChild(errorDiv);
+}
+
+document.addEventListener("DOMContentLoaded", init);
