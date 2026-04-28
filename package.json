@@ -26,7 +26,7 @@
   },
   "scripts": {
     "test": "node --test test/*.test.js",
-    "lint": "eslint src test",
+    "lint": "biome lint src test bin demo",
     "build": "rollup -c"
   }
 }
