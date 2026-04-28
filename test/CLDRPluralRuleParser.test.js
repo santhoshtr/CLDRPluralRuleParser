@@ -178,7 +178,7 @@ test("CLDRPluralRuleParser", async () => {
 						continue;
 					}
 					number = parseInt(number.split("~")[0], 10);
-					if (!number || Number.isNaN(number)) {
+					if (Number.isNaN(number)) {
 						continue;
 					}
 					assert.strictEqual(
@@ -201,9 +201,6 @@ test("CLDRPluralRuleParser", async () => {
 					if (!number || Number.isNaN(parseFloat(number))) {
 						continue;
 					}
-					if (locale === "lag") {
-						continue;
-					}
 					assert.strictEqual(
 						pluralRuleParser(rule, number),
 						true,
@@ -212,7 +209,7 @@ test("CLDRPluralRuleParser", async () => {
 					tested++;
 				}
 				assert.ok(
-					tested > 0 || locale === "lag",
+					tested > 0,
 					`No samples were tested for rule "${count}" in locale "${locale}": ${rule}`,
 				);
 			}
