@@ -21,13 +21,11 @@
   "license": "MIT",
   "devDependencies": {
     "cldr-data": "^36.0.0",
-    "mocha": "^10.2.0",
-    "prettier": "^3.0.3",
     "rollup": "^3.29.3",
     "@biomejs/biome": "^2.4.13"
   },
   "scripts": {
-    "test": "mocha test/*.test.js",
+    "test": "node --test test/*.test.js",
     "lint": "eslint src test",
     "build": "rollup -c"
   }
