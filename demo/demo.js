@@ -8,8 +8,8 @@ async function init() {
 		pluraldata = await response.json();
 		const languageSelect = document.getElementById("input-language");
 		const numberInput = document.getElementById("input-number");
-		languageSelect.addEventListener("change", changeHandler);
-		numberInput.addEventListener("change", changeHandler);
+		languageSelect.addEventListener("input", changeHandler);
+		numberInput.addEventListener("input", changeHandler);
 		changeHandler();
 	} catch (error) {
 		console.error("Failed to load plurals.json:", error);
