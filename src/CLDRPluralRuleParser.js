@@ -2,7 +2,7 @@
  * cldrpluralparser.js
  * A parser engine for CLDR plural rules.
  *
- * Copyright 2012-2014 Santhosh Thottingal and other contributors
+ * Copyright 2012-2026 Santhosh Thottingal and other contributors
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
  *
