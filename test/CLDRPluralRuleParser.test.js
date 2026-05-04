@@ -149,6 +149,112 @@ test("CLDRPluralRuleParser", async () => {
 		}
 	});
 
+	await test("compact notation (c/e operands) - shiftDecimal and operand values", () => {
+		// c/e returns exponent; n/i/f/t/v/w operate on the expanded number
+		// "1c6" => exponent=6, expanded=1000000; i=1000000, v=0, f=0
+		assert.strictEqual(pluralRuleParser("c = 6", "1c6"), true, "1c6: c=6");
+		assert.strictEqual(pluralRuleParser("e = 6", "1c6"), true, "1c6: e=6");
+		assert.strictEqual(
+			pluralRuleParser("c = 0", "1000000"),
+			true,
+			"1000000: c=0",
+		);
+		assert.strictEqual(
+			pluralRuleParser("e = 0", "1000000"),
+			true,
+			"1000000: e=0",
+		);
+		assert.strictEqual(pluralRuleParser("c = 3", "1c3"), true, "1c3: c=3");
+
+		// Expansion: 1.2005c3 => i=1200, f=5 (per spec)
+		assert.strictEqual(
+			pluralRuleParser("i = 1200", "1.2005c3"),
+			true,
+			"1.2005c3: i=1200",
+		);
+		assert.strictEqual(
+			pluralRuleParser("v = 1", "1.2005c3"),
+			true,
+			"1.2005c3: v=1",
+		);
+
+		// 1c6 => i=1000000, v=0
+		assert.strictEqual(
+			pluralRuleParser("i = 1000000", "1c6"),
+			true,
+			"1c6: i=1000000",
+		);
+		assert.strictEqual(pluralRuleParser("v = 0", "1c6"), true, "1c6: v=0");
+
+		// 1.0000001c6 => expanded=1000000.1 => i=1000000, f=1, v=1
+		assert.strictEqual(
+			pluralRuleParser("i = 1000000", "1.0000001c6"),
+			true,
+			"1.0000001c6: i=1000000",
+		);
+		assert.strictEqual(
+			pluralRuleParser("v = 1", "1.0000001c6"),
+			true,
+			"1.0000001c6: v=1",
+		);
+		assert.strictEqual(
+			pluralRuleParser("f = 5", "1.2005c3"),
+			true,
+			"1.2005c3: f=5",
+		);
+		assert.strictEqual(
+			pluralRuleParser("t = 5", "1.2005c3"),
+			true,
+			"1.2005c3: t=5",
+		);
+		assert.strictEqual(
+			pluralRuleParser("n = 1200000", "1.2c6"),
+			true,
+			"1.2c6: n=1200000",
+		);
+	});
+
+	await test("compact notation (c/e operands) - French plural rules", () => {
+		const frRules = pluralsData.supplemental["plurals-type-cardinal"].fr;
+		const one = frRules["pluralRule-count-one"];
+		const many = frRules["pluralRule-count-many"];
+
+		// one: i = 0,1
+		assert.strictEqual(pluralRuleParser(one, "0"), true, "fr one: 0");
+		assert.strictEqual(pluralRuleParser(one, "1"), true, "fr one: 1");
+		assert.strictEqual(
+			pluralRuleParser(one, "2"),
+			false,
+			"fr one: 2 should fail",
+		);
+
+		// many: e = 0 and i != 0 and i % 1000000 = 0 and v = 0 or e != 0..5
+		// Plain 1000000: e=0, i=1000000, i%1000000=0, v=0 => many
+		assert.strictEqual(
+			pluralRuleParser(many, "1000000"),
+			true,
+			"fr many: 1000000",
+		);
+		// 1c6: e=6, e != 0..5 => many
+		assert.strictEqual(pluralRuleParser(many, "1c6"), true, "fr many: 1c6");
+		assert.strictEqual(pluralRuleParser(many, "2c6"), true, "fr many: 2c6");
+		assert.strictEqual(pluralRuleParser(many, "6c6"), true, "fr many: 6c6");
+		// 1.1c6: e=6, e != 0..5 => many
+		assert.strictEqual(pluralRuleParser(many, "1.1c6"), true, "fr many: 1.1c6");
+		// 1c3: e=3, e != 0..5 is false (3 is in 0..5) => not many
+		assert.strictEqual(
+			pluralRuleParser(many, "1c3"),
+			false,
+			"fr many: 1c3 should fail",
+		);
+		// plain 2: e=0, i=2, i%1000000!=0 => not many
+		assert.strictEqual(
+			pluralRuleParser(many, "2"),
+			false,
+			"fr many: 2 should fail",
+		);
+	});
+
 	await test("should parse all plural rules in plurals.json in cldr", () => {
 		const plurals = pluralsData.supplemental["plurals-type-cardinal"];
 		for (const locale in plurals) {
@@ -173,13 +279,13 @@ test("CLDRPluralRuleParser", async () => {
 					if (!number) {
 						continue;
 					}
-					// Skip compact notation samples (e.g. 1c6)
-					if (/c\d/.test(number)) {
-						continue;
-					}
-					number = parseInt(number.split("~")[0], 10);
-					if (Number.isNaN(number)) {
-						continue;
+					// For compact notation samples (e.g. 1c6), pass as-is (string).
+					// For range samples (e.g. 3~10), take the first value.
+					if (!/[ce]\d/.test(number)) {
+						number = parseInt(number.split("~")[0], 10);
+						if (Number.isNaN(number)) {
+							continue;
+						}
 					}
 					assert.strictEqual(
 						pluralRuleParser(rule, number),
@@ -193,13 +299,13 @@ test("CLDRPluralRuleParser", async () => {
 					if (!number) {
 						continue;
 					}
-					// Skip compact notation samples (e.g. 1.1c6)
-					if (/c\d/.test(number)) {
-						continue;
-					}
-					number = number.split("~")[0];
-					if (!number || Number.isNaN(parseFloat(number))) {
-						continue;
+					// For compact notation samples (e.g. 1.1c6), pass as-is (string).
+					// For range samples (e.g. 0.1~1.6), take the first value.
+					if (!/[ce]\d/.test(number)) {
+						number = number.split("~")[0];
+						if (!number || Number.isNaN(parseFloat(number))) {
+							continue;
+						}
 					}
 					assert.strictEqual(
 						pluralRuleParser(rule, number),
@@ -216,4 +322,3 @@ test("CLDRPluralRuleParser", async () => {
 		}
 	});
 });
-

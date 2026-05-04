@@ -13,6 +13,36 @@
  */
 
 /**
+ * Shifts the decimal point of a base number string right by exp places.
+ * Used to expand compact decimal notation per the CLDR spec.
+ * e.g. shiftDecimal("1.2005", 3) => "1200.5"
+ *      shiftDecimal("1", 6)      => "1000000"
+ * @param {string} base  The number before the 'c'/'e' suffix (e.g. "1.2005")
+ * @param {number} exp   The exponent (number of places to shift right)
+ * @return {string}
+ */
+function shiftDecimal(base, exp) {
+	let intPart, fracPart;
+	const dotIndex = base.indexOf(".");
+	if (dotIndex === -1) {
+		intPart = base;
+		fracPart = "";
+	} else {
+		intPart = base.slice(0, dotIndex);
+		fracPart = base.slice(dotIndex + 1);
+	}
+	// Pad fracPart with zeros if exp exceeds its length
+	while (fracPart.length < exp) {
+		fracPart += "0";
+	}
+	const newIntPart = intPart + fracPart.slice(0, exp);
+	const newFracPart = fracPart.slice(exp);
+	// Remove leading zeros from integer part (but keep at least one digit)
+	const trimmedInt = newIntPart.replace(/^0+/, "") || "0";
+	return newFracPart.length > 0 ? `${trimmedInt}.${newFracPart}` : trimmedInt;
+}
+
+/**
  * Evaluates a plural rule in CLDR syntax for a number
  * @param {string} rule
  * @param {integer} number
@@ -48,6 +78,16 @@ function pluralRuleParser(rule, number) {
 		// Empty rule or 'other' rule.
 		return true;
 	}
+
+	// Parse compact decimal notation (e.g. "1.2005c3" or "1c6").
+	// Per CLDR spec, n/i/f/t/v/w are computed after shifting the decimal point
+	// by the exponent; c/e return the exponent itself.
+	const compactMatch = /^(\d+(?:\.\d+)?)[ce](\d+)$/.exec(number);
+	const compactExponent = compactMatch ? parseInt(compactMatch[2], 10) : 0;
+	// expandedNumber is the base with the decimal shifted right by compactExponent places.
+	const expandedNumber = compactMatch
+		? shiftDecimal(compactMatch[1], compactExponent)
+		: String(number);
 
 	// Indicates the current position in the rule as we parse through it.
 	// Shared among all parsing functions below.
@@ -184,12 +224,12 @@ function pluralRuleParser(rule, number) {
 		let result = _i_();
 
 		if (result === null) {
-			debug(" -- failed i", parseInt(number, 10));
+			debug(" -- failed i");
 
 			return result;
 		}
 
-		result = parseInt(number, 10);
+		result = parseInt(expandedNumber, 10);
 		debug(" -- passed i ", result);
 
 		return result;
@@ -202,12 +242,12 @@ function pluralRuleParser(rule, number) {
 		let result = _n_();
 
 		if (result === null) {
-			debug(" -- failed n ", number);
+			debug(" -- failed n");
 
 			return result;
 		}
 
-		result = parseFloat(number, 10);
+		result = parseFloat(expandedNumber);
 		debug(" -- passed n ", result);
 
 		return result;
@@ -220,12 +260,12 @@ function pluralRuleParser(rule, number) {
 		let result = _f_();
 
 		if (result === null) {
-			debug(" -- failed f ", number);
+			debug(" -- failed f");
 
 			return result;
 		}
 
-		result = `${number}.`.split(".")[1] || 0;
+		result = `${expandedNumber}.`.split(".")[1] || 0;
 		debug(" -- passed f ", result);
 
 		return result;
@@ -238,12 +278,12 @@ function pluralRuleParser(rule, number) {
 		let result = _t_();
 
 		if (result === null) {
-			debug(" -- failed t ", number);
+			debug(" -- failed t");
 
 			return result;
 		}
 
-		result = `${number}.`.split(".")[1].replace(/0$/, "") || 0;
+		result = `${expandedNumber}.`.split(".")[1].replace(/0+$/, "") || 0;
 		debug(" -- passed t ", result);
 
 		return result;
@@ -256,12 +296,12 @@ function pluralRuleParser(rule, number) {
 		let result = _v_();
 
 		if (result === null) {
-			debug(" -- failed v ", number);
+			debug(" -- failed v");
 
 			return result;
 		}
 
-		result = `${number}.`.split(".")[1].length || 0;
+		result = `${expandedNumber}.`.split(".")[1].length || 0;
 		debug(" -- passed v ", result);
 
 		return result;
@@ -274,48 +314,49 @@ function pluralRuleParser(rule, number) {
 		let result = _w_();
 
 		if (result === null) {
-			debug(" -- failed w ", number);
+			debug(" -- failed w");
 
 			return result;
 		}
 
-		result = `${number}.`.split(".")[1].replace(/0$/, "").length || 0;
+		result = `${expandedNumber}.`.split(".")[1].replace(/0+$/, "").length || 0;
 		debug(" -- passed w ", result);
 
 		return result;
 	}
 
 	/**
-	 * Compact decimal exponent value (e or c), always 0 for plain numbers.
+	 * Compact decimal exponent value (e), 0 for plain numbers.
+	 * 'e' is a deprecated synonym for 'c'.
 	 */
 	function e() {
 		let result = _e_();
 
 		if (result === null) {
-			debug(" -- failed e ", number);
+			debug(" -- failed e");
 
 			return result;
 		}
 
-		result = 0;
+		result = compactExponent;
 		debug(" -- passed e ", result);
 
 		return result;
 	}
 
 	/**
-	 * Compact decimal exponent value (c, alias for e), always 0 for plain numbers.
+	 * Compact decimal exponent value (c), 0 for plain numbers.
 	 */
 	function c() {
 		let result = _c_();
 
 		if (result === null) {
-			debug(" -- failed c ", number);
+			debug(" -- failed c");
 
 			return result;
 		}
 
-		result = 0;
+		result = compactExponent;
 		debug(" -- passed c ", result);
 
 		return result;
